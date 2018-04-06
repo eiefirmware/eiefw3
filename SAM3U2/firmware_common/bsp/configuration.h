@@ -68,10 +68,6 @@ Includes
 #include "utilities.h"
 
 /* Common driver header files */
-#include "antmessage.h"
-#include "antdefines.h"
-#include "ant.h"
-#include "ant_api.h"
 #include "buttons.h"
 #include "leds.h" 
 #include "messaging.h"
@@ -88,19 +84,6 @@ Includes
 #include "lcd_nhd-c0220biz.h"
 #include "sdcard.h"
 #endif /* EIE1 */
-
-#ifdef MPGL2
-/* MPGL2-specific header files */
-#ifdef MPGL2_R01
-#include "mpgl2-ehdw-01.h"
-#else
-#include "mpgl2-ehdw-02.h"
-#endif /* MPGL2_R01 */
-
-#include "captouch.h"
-#include "lcd_bitmaps.h"
-#include "lcd_NHD-C12864LZ.h"
-#endif /* MPGL2 */
 
 /* Common application header files */
 #include "debug.h"

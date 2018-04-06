@@ -117,22 +117,8 @@ DebugCommandType Debug_au8Commands[DEBUG_COMMANDS] = { {DEBUG_CMD_NAME00, DebugC
                                                        {DEBUG_CMD_NAME07, DebugCommandDummy} 
                                                      };
 
-static u8 Debug_au8StartupMsg[] = "\n\n\r*** RAZOR SAM3U2 ASCII LCD DEVELOPMENT BOARD ***\n\n\r";
+static u8 Debug_au8StartupMsg[] = "\n\n\r*** RAZOR SAM3U2 ASCII DEVELOPMENT BOARD\033[31m ANTTT\033[30m ***\n\n\r";
 #endif /* EIE1 */
-
-#ifdef MPGL2
-DebugCommandType Debug_au8Commands[DEBUG_COMMANDS] = { {DEBUG_CMD_NAME00, DebugCommandPrepareList},
-                                                       {DEBUG_CMD_NAME01, DebugCommandLedTestToggle},
-                                                       {DEBUG_CMD_NAME02, DebugCommandSysTimeToggle},
-                                                       {DEBUG_CMD_NAME03, DebugCommandCaptouchValuesToggle},
-                                                       {DEBUG_CMD_NAME04, DebugCommandDummy},
-                                                       {DEBUG_CMD_NAME05, DebugCommandDummy},
-                                                       {DEBUG_CMD_NAME06, DebugCommandDummy},
-                                                       {DEBUG_CMD_NAME07, DebugCommandDummy} 
-                                                     };
-
-static u8 Debug_au8StartupMsg[] = "\n\n\r*** RAZOR SAM3U2 DOT MATRIX DEVELOPMENT BOARD ***\n\n\r";
-#endif /* MPGL2 */
 
 
 /***********************************************************************************************************************
@@ -410,7 +396,7 @@ void SystemStatusReport(void)
   bool bNoFailedTasks = TRUE;
 
 #ifdef EIE1
-  u8 aau8AppShortNames[NUMBER_APPLICATIONS][MAX_TASK_NAME_SIZE] = {"LED", "BUTTON", "DEBUG", "LCD", "ANT", "TIMER", "ADC", "SD"};
+  u8 aau8AppShortNames[NUMBER_APPLICATIONS][MAX_TASK_NAME_SIZE] = {"LED", "BUTTON", "DEBUG", "LCD", "TIMER", "ADC", "SD"};
 #endif /* EIE1 */
 
 #ifdef MPGL2

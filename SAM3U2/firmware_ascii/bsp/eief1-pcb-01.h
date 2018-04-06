@@ -94,7 +94,7 @@ void PWMSetupAudio(void);
 #define PA_29_BUZZER2           (u32)0x20000000
 #define PA_28_BUZZER1           (u32)0x10000000
 #define PA_27_CLOCK_OUT         (u32)0x08000000
-#define PA_26_ANT_PWR_EN        (u32)0x04000000 
+#define PA_26_TP30              (u32)0x04000000 
 #define PA_25_ANT_USPI2_SCK     (u32)0x02000000
 #define PA_24_SD_USPI1_SCK      (u32)0x01000000
 #define PA_23_ANT_USPI2_MOSI    (u32)0x00800000
@@ -473,7 +473,7 @@ counter must be set at 1280. */
     28 [0] PA_28_BUZZER1 PIO control not enabled
 
     27 [0] PA_27_CLOCK_OUT PIO control not enabled
-    26 [1] PA_26_ANT_PWR_EN PIO control enabled
+    26 [1] PA_26_ PIO control enabled
     25 [0] PA_25_ANT_USPI2_SCK PIO control not enabled
     24 [0] PA_24_SD_USPI1_SCK PIO control not enabled
 
@@ -556,7 +556,7 @@ Configures the pin as an output or input.
 0: No effect
 1: Enables the output on the I/O line
 */
-#define PIOA_OER_INIT (u32)0xBF55D7F9
+#define PIOA_OER_INIT (u32)0xBB55D7F9
 /* 
     31 [1] PA_31_HEARTBEAT output enabled
     30 [0] PA_30_AN_DEMO input
@@ -564,7 +564,7 @@ Configures the pin as an output or input.
     28 [1] PA_28_BUZZER1 output enabled
 
     27 [1] PA_27_CLOCK_OUT output enabled
-    26 [1] PA_26_ANT_PWR_EN output enabled
+    26 [0] PA_26_TP30 input
     25 [1] PA_25_ANT_USPI2_SCK output enabled
     24 [1] PA_24_SD_USPI1_SCK output enabled
 
@@ -599,7 +599,7 @@ Configures the pin as an output or input.
     00 [1] PA_00_TP54 output enabled
 */
 
-#define PIOB_OER_INIT (u32)0x01BFFFE0
+#define PIOB_OER_INIT (u32)0x019FFFE0
 /*
     31 [0] PB_31_
     30 [0] PB_30_
@@ -613,7 +613,7 @@ Configures the pin as an output or input.
 
     23 [1] PB_23_ANT_MRDY output enabled
     22 [0] PB_22_ANT_USPI2_CS
-    21 [1] PB_21_ANT_RESET output enabled
+    21 [0] PB_21_ANT_RESET input
     20 [1] PB_20_LED_RED output enabled
 
     19 [1] PB_19_LED_GRN output enabled
@@ -654,7 +654,7 @@ Configures the pin as an output or input.
     28 [0] PA_28_BUZZER1 no glitch filter
 
     27 [0] PA_27_CLOCK_OUT no glitch filter
-    26 [0] PA_26_ANT_PWR_EN no glitch filter
+    26 [0] PA_26_TP30 no glitch filter
     25 [0] PA_25_ANT_USPI2_SCK no glitch filter
     24 [0] PA_24_SD_USPI1_SCK no glitch filter
 
@@ -746,7 +746,7 @@ Default start-up IO values are held here.
     28 [0] PA_28_BUZZER1 output low
 
     27 [1] PA_27_CLOCK_OUT output high
-    26 [0] PA_26_ANT_PWR_EN output high Z
+    26 [0] PA_26_TP30 N/A
     25 [0] PA_25_ANT_USPI2_SCK N/A
     24 [0] PA_24_SD_USPI1_SCK N/A
 
@@ -781,7 +781,7 @@ Default start-up IO values are held here.
     00 [0] PA_00_TP54 N/A
 */
 
-#define PIOB_SODR_INIT (u32)0x01BFFE00
+#define PIOB_SODR_INIT (u32)0x019FFE00
 /*
     31 [0] PB_31_
     30 [0] PB_30_
@@ -795,7 +795,7 @@ Default start-up IO values are held here.
 
     23 [1] PB_23_ANT_MRDY output high
     22 [0] PB_22_ANT_USPI2_CS N/A
-    21 [1] PB_21_ANT_RESET output high
+    21 [0] PB_21_ANT_RESET N/A
     20 [1] PB_20_LED_RED output high
 
     19 [1] PB_19_LED_GRN output high
@@ -837,7 +837,7 @@ Initial output values are stored here.
     28 [1] PA_28_BUZZER1 output low
 
     27 [0] PA_27_CLOCK_OUT output high
-    26 [0] PA_26_ANT_PWR_EN output high Z
+    26 [0] PA_26_TP30 N/A
     25 [0] PA_25_ANT_USPI2_SCK N/A
     24 [0] PA_24_SD_USPI1_SCK N/A
 
@@ -886,7 +886,7 @@ Initial output values are stored here.
 
     23 [0] PB_23_ANT_MRDY output high
     22 [0] PB_22_ANT_USPI2_CS N/A
-    21 [0] PB_21_ANT_RESET output high
+    21 [0] PB_21_ANT_RESET N/A
     20 [0] PB_20_LED_RED output high
 
     19 [0] PB_19_LED_GRN output high
@@ -919,7 +919,7 @@ Initial output values are stored here.
 0: No effect
 1: Enables Multi Drive on the I/O line.
 */
-#define PIOA_MDER_INIT (u32)0x04000600
+#define PIOA_MDER_INIT (u32)0x00000600
 /* 
     31 [0] PA_31_HEARTBEAT
     30 [0] PA_30_AN_DEMO
@@ -927,7 +927,7 @@ Initial output values are stored here.
     28 [0] PA_28_BUZZER1
 
     27 [0] PA_27_CLOCK_OUT
-    26 [1] PA_26_ANT_PWR_EN open drain
+    26 [0] PA_26_TP30 
     25 [0] PA_25_ANT_USPI2_SCK
     24 [0] PA_24_SD_USPI1_SCK
 
@@ -1009,7 +1009,7 @@ Initial output values are stored here.
 0: No effect
 1: Enables the pull-up resistor on the selected pin
 */
-#define PIOA_PPUER_INIT (u32)0x00000001
+#define PIOA_PPUER_INIT (u32)0x04000001
 /*
     31 [0] PA_31_HEARTBEAT no pull-up
     30 [0] PA_30_AN_DEMO no pull-up
@@ -1017,7 +1017,7 @@ Initial output values are stored here.
     28 [0] PA_28_BUZZER1 no pull-up
 
     27 [0] PA_27_CLOCK_OUT no pull-up
-    26 [0] PA_26_ANT_PWR_EN no pull-up
+    26 [1] PA_26_TP30 pull-up enabled
     25 [0] PA_25_ANT_USPI2_SCK no pull-up
     24 [0] PA_24_SD_USPI1_SCK no pull-up
 
@@ -1108,7 +1108,7 @@ Initial output values are stored here.
     28 [1] PA_28_BUZZER1 PERIPHERAL B
 
     27 [1] PA_27_CLOCK_OUT PERIPHERAL B
-    26 [0] PA_26_ANT_PWR_EN N/A
+    26 [0] PA_26_TP30 N/A
     25 [1] PA_25_ANT_USPI2_SCK PERIPHERAL B
     24 [1] PA_24_SD_USPI1_SCK PERIPHERAL B
 
@@ -1198,7 +1198,7 @@ Initial output values are stored here.
     28 [0] PA_28_BUZZER1
 
     27 [0] PA_27_CLOCK_OUT
-    26 [0] PA_26_ANT_PWR_EN
+    26 [0] PA_26_TP30
     25 [0] PA_25_ANT_USPI2_SCK
     24 [0] PA_24_SD_USPI1_SCK
 
@@ -1288,7 +1288,7 @@ Initial output values are stored here.
     28 [0] PA_28_BUZZER1
 
     27 [0] PA_27_CLOCK_OUT
-    26 [0] PA_26_ANT_PWR_EN
+    26 [0] PA_26_TP30
     25 [0] PA_25_ANT_USPI2_SCK
     24 [0] PA_24_SD_USPI1_SCK
 
@@ -1431,7 +1431,7 @@ Tdiv_slclk = 2*(DIV+1)*Tslow_clock.
     28 [0] PA_28_BUZZER1 write ODSR disabled
 
     27 [0] PA_27_CLOCK_OUT write ODSR disabled
-    26 [0] PA_26_ANT_PWR_EN write ODSR disabled
+    26 [0] PA_26_TP30 write ODSR disabled
     25 [0] PA_25_ANT_USPI2_SCK write ODSR disabled
     24 [0] PA_24_SD_USPI1_SCK write ODSR disabled
 

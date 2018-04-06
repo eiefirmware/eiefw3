@@ -247,7 +247,9 @@ void LcdInitialize(void)
   
   TWI0WriteByte(LCD_ADDRESS, LCD_CONTROL_DATA, NO_STOP);
   TWI0WriteData(LCD_ADDRESS, 20, &au8Welcome[0], STOP);
-   
+  
+  LCDMessage(LINE2_START_ADDR, "EIE FW3 ANTTT");
+  
   Lcd_u32Timer = G_u32SystemTime1ms;
   G_u32ApplicationFlags |= _APPLICATION_FLAGS_LCD;
 

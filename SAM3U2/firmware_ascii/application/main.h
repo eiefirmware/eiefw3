@@ -31,22 +31,21 @@ FIRMWARE_SUB_REV1: should be updated when a pull request is made to the MASTER b
 #define _APPLICATION_FLAGS_BUTTON       0x00000002        /*!< G_u32ApplicationFlags ButtonStateMachine is initialized */
 #define _APPLICATION_FLAGS_DEBUG        0x00000004        /*!< G_u32ApplicationFlags DebugStateMachine is initialized */
 #define _APPLICATION_FLAGS_LCD          0x00000008        /*!< G_u32ApplicationFlags LcdStateMachine is initialized */
-#define _APPLICATION_FLAGS_ANT          0x00000010        /*!< G_u32ApplicationFlags AntStateMachine is initialized */
-#define _APPLICATION_FLAGS_TIMER        0x00000020        /*!< G_u32ApplicationFlags TimerStateMachine is initialized */
-#define _APPLICATION_FLAGS_ADC          0x00000040        /*!< G_u32ApplicationFlags Adc12StateMachine is initialized */
+#define _APPLICATION_FLAGS_TIMER        0x00000010        /*!< G_u32ApplicationFlags TimerStateMachine is initialized */
+#define _APPLICATION_FLAGS_ADC          0x00000020        /*!< G_u32ApplicationFlags Adc12StateMachine is initialized */
 
 #ifdef EIE1
 /* EIE1 specific application flags */
-#define _APPLICATION_FLAGS_SDCARD       0x00000080        /*!< G_u32ApplicationFlags  SdCardStateMachine */
+#define _APPLICATION_FLAGS_SDCARD       0x00000040        /*!< G_u32ApplicationFlags  SdCardStateMachine */
 
-#define NUMBER_APPLICATIONS             (u8)8             /*!< Total number of system applications */
+#define NUMBER_APPLICATIONS             (u8)7             /*!< Total number of system applications */
 #endif /* EIE1 specific application flags */
 
 #ifdef MPGL2
 /* MPGL2 specific application flags */
-#define _APPLICATION_FLAGS_CAPTOUCH     0x00000080        /*!< G_u32ApplicationFlags  CapTouchStateMachine */
+#define _APPLICATION_FLAGS_CAPTOUCH     0x00000040        /*!< G_u32ApplicationFlags  CapTouchStateMachine */
 
-#define NUMBER_APPLICATIONS             (u8)8             /*!< Total number of system applications */
+#define NUMBER_APPLICATIONS             (u8)7             /*!< Total number of system applications */
 #endif /* MPGL2 specific application flags */
 
 /* G_u32SystemFlags */
@@ -56,8 +55,6 @@ FIRMWARE_SUB_REV1: should be updated when a pull request is made to the MASTER b
 #define _SYSTEM_CLOCK_OSC_FAIL          (u32)0x00000008   /*!< G_u32SystemFlags set if oscillator start-up fails */
 #define _SYSTEM_CLOCK_PLL_NO_LOCK       (u32)0x00000010   /*!< G_u32SystemFlags set if PLL0 does not lock on startup */
 #define _SYSTEM_TIME_WARNING            (u32)0x00000020   /*!< G_u32SystemFlags set if a 1ms violation has occurred */
-
-#define _SYSTEM_STARTUP_NO_ANT          (u32)0x01000000   /*!< G_u32SystemFlags set if button hold to disable ANT detected at startup */
 
 #define _SYSTEM_SLEEPING                (u32)0x40000000   /*!< G_u32SystemFlags set into sleep mode to go back to sleep if woken before 1ms period */
 #define _SYSTEM_INITIALIZING            (u32)0x80000000   /*!< G_u32SystemFlags set when system is in initialization phase */
