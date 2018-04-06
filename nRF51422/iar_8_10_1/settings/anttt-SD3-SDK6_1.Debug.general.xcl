@@ -1,0 +1,13 @@
+"C:\Program Files (x86)\IAR Systems\EWARM_8_10_1\arm\bin\armproc.dll" 
+
+"C:\Program Files (x86)\IAR Systems\EWARM_8_10_1\arm\bin\armjlink2.dll" 
+
+"D:\EiE\EiE_Git\eiefirmware\ANTTT\iar_8_10_1\Debug\Exe\anttt-SD3-SDK6_1.out" 
+
+--plugin "C:\Program Files (x86)\IAR Systems\EWARM_8_10_1\arm\bin\armbat.dll" 
+
+--flash_loader "C:\Program Files (x86)\IAR Systems\EWARM_8_10_1\arm\config\flashloader\NordicSemi\FlashNRF51822.board" 
+
+
+
+
