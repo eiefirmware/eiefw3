@@ -10,29 +10,20 @@ File: anttt.h
 /**********************************************************************************************************************
 Constants / Definitions
 **********************************************************************************************************************/
-/* Game flags */
-#define _U16_ANTTT_WIN_FLAG             (u16)0x0200
+/* ANTTT Communication Protocol */
+#define ANTTT_COMMAND_SIZE              (u8)3
+#define ANTTT_COMMAND_ID_OFFSET         (u8)0x00
+#define ANTTT_COMMAND_POSITION_OFFSET   (u8)0x01
+#define ANTTT_COMMAND_UNUSED_OFFSET     (u8)0x02
 
-#define U16_ANTTT_DRAW                  (u16)0x1FF
-#define U8_AWAY_POSITION_OFFSET         (u8)9
-
-#define ANTTT_DEVICE_TYPE               (u8)20
-
-#define ANTTT_COMMAND_ID_OFFSET         0x00
-#define ANTTT_COMMAND_POSITION_OFFSET   0x01
-#define ANTTT_COMMAND_SOURCE_OFFSET     0x02
-#define ANTTT_COMMAND_SIZE              0x03
-
-#define ANTTT_COMMAND_ID_MOVE           0xCC
-#define ANTTT_COMMAND_ID_MOVE_RESP      0xAC   
+#define ANTTT_COMMAND_ID_MOVE           (u8)0xCC
+#define ANTTT_COMMAND_ID_MOVE_RESP      (u8)0xAC   
 
 
 
 /**********************************************************************************************************************
 Type Definitions
 **********************************************************************************************************************/
-typedef enum {ANTTT_POS1 = 0, ANTTT_POS2, ANTTT_POS3, ANTT_POS4, ANTTT_POS5, ANTTT_POS6,
-              ANTTT_POS7, ANTTT_POS8, ANTTT_POS9} ANTTT_POSITIONS;
 
 
 /**********************************************************************************************************************
@@ -42,30 +33,24 @@ Function Declarations
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Public functions                                                                                                   */
 /*--------------------------------------------------------------------------------------------------------------------*/
-void AntttIncomingMessage(u8* pu8Data_, u8 u8Length_);
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Protected functions                                                                                                */
 /*--------------------------------------------------------------------------------------------------------------------*/
 void AntttInitialize(void);
-void AntttHandleIncomingMessage(u8* pu8Data_, u8 u8Length_);
-
+void AntttRunActiveState(void);
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-static bool Anttt_is_game_over(void);
-static void Anttt_reset_rx_buffer(void);
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* SM functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
 static void AntttSM_Idle(void);
-static void AntttSM_Wait(void);
-static void AntttSM_Active(void);
-static void AntttSM_Gameover(void);
 
 
 

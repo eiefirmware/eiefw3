@@ -1,8 +1,8 @@
 /***********************************************************************************************************************
-File: anttt-ehdw-04.c                                                                
+File: anttt-eief1-01.c                                                                
 
 Description:
-This file provides board support functions for the nRF51422 processor on the Engenuics ANTTT boards.
+This file provides board support functions for the nRF51422 processor on the Engenuics eief1-01 boards.
 ***********************************************************************************************************************/
 
 #include "configuration.h"
@@ -78,37 +78,7 @@ Promises:
 void GpioSetup(void)
 {
   /* Set all of the pin function registers in port 0 */
-  NRF_GPIO->PIN_CNF[P0_30_INDEX] = P0_30_LED_HOME_3_CNF;
-  NRF_GPIO->PIN_CNF[P0_29_INDEX] = P0_29_LED_HOME_6_CNF;
-  NRF_GPIO->PIN_CNF[P0_28_INDEX] = P0_28_LED_AWAY_3_CNF;
-  NRF_GPIO->PIN_CNF[P0_27_INDEX] = P0_27_NC_CNF;
-  NRF_GPIO->PIN_CNF[P0_26_INDEX] = P0_26_SW_ROW1_CNF;
-  NRF_GPIO->PIN_CNF[P0_25_INDEX] = P0_25_NC_CNF;
-  NRF_GPIO->PIN_CNF[P0_24_INDEX] = P0_24_LED_AWAY_9_CNF;
-  NRF_GPIO->PIN_CNF[P0_23_INDEX] = P0_23_COLUMN3_CNF;
-  NRF_GPIO->PIN_CNF[P0_22_INDEX] = P0_22_LED_HOME_9_CNF;
-  NRF_GPIO->PIN_CNF[P0_21_INDEX] = P0_21_LED_AWAY_6_CNF;
-  NRF_GPIO->PIN_CNF[P0_20_INDEX] = P0_20_LED_HOME_1_CNF;
-  NRF_GPIO->PIN_CNF[P0_19_INDEX] = P0_19_LED_AWAY_1_CNF;
-  NRF_GPIO->PIN_CNF[P0_18_INDEX] = P0_18_LED_AWAY_2_CNF;
-  NRF_GPIO->PIN_CNF[P0_17_INDEX] = P0_17_LED_HOME_2_CNF;
-  NRF_GPIO->PIN_CNF[P0_16_INDEX] = P0_16_BUZZER_CNF;
-  NRF_GPIO->PIN_CNF[P0_15_INDEX] = P0_15_COLUMN2_CNF;
-  NRF_GPIO->PIN_CNF[P0_14_INDEX] = P0_14_COLUMN1_CNF;
-  NRF_GPIO->PIN_CNF[P0_13_INDEX] = P0_13_LED_AWAY_4_CNF;
-  NRF_GPIO->PIN_CNF[P0_12_INDEX] = P0_12_LED_HOME_4_CNF;
-  NRF_GPIO->PIN_CNF[P0_11_INDEX] = P0_11_LED_AWAY_7_CNF;
-  NRF_GPIO->PIN_CNF[P0_10_INDEX] = P0_10_LED_HOME_7_CNF;
-  NRF_GPIO->PIN_CNF[P0_09_INDEX] = P0_09_SW_ROW3_CNF;
-  NRF_GPIO->PIN_CNF[P0_08_INDEX] = P0_08_SW_ROW2_CNF;
-  NRF_GPIO->PIN_CNF[P0_07_INDEX] = P0_07_LED_AWAY_5_CNF;
-  NRF_GPIO->PIN_CNF[P0_06_INDEX] = P0_06_LED_HOME_5_CNF;
-  NRF_GPIO->PIN_CNF[P0_05_INDEX] = P0_05_LED_STATUS_RED_CNF;
-  NRF_GPIO->PIN_CNF[P0_04_INDEX] = P0_04_LED_STATUS_YLW_CNF;
-  NRF_GPIO->PIN_CNF[P0_03_INDEX] = P0_03_LED_STATUS_GRN_CNF;
-  NRF_GPIO->PIN_CNF[P0_02_INDEX] = P0_02_LED_AWAY_8_CNF;
-  NRF_GPIO->PIN_CNF[P0_01_INDEX] = P0_01_LED_HOME_8_CNF;
-  NRF_GPIO->PIN_CNF[P0_00_INDEX] = P0_00_GND_CNF;
+  NRF_GPIO->PIN_CNF[P0_29_INDEX] = P0_29_LED_RED_CNF;
    
 } /* end GpioSetup() */
 
@@ -174,6 +144,7 @@ void ClockSetup(void)
   /* No need for timeout as an HFCLK of some sort is guaranteed to be running so LFCLK has to start */
   while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0);
   NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;  
+  
 } /* end ClockSetup */
 
 
@@ -191,7 +162,6 @@ Promises:
 */
 void InterruptSetup(void)
 {
-
   
 } /* end InterruptSetup */
 

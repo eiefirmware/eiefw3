@@ -334,7 +334,7 @@ Promises:
 static void CallbackBleperipheralEngenuicsDataRx(u8* u8Data_, u8 u8Length_)
 {
   // Forward handling to ANTTT module.
-  AntttHandleIncomingMessage(u8Data_, u8Length_);
+  
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/

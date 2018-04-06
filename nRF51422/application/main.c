@@ -71,8 +71,6 @@ void main(void)
   InterruptsInitialize();
     
   /* Driver initialization */
-  LedInitialize();
-  ButtonInitialize();
 
   ANTIntegrationInitialize();
   BLEIntegrationInitialize();
@@ -88,14 +86,11 @@ void main(void)
   while(1)
   {
     SocIntegrationHandler();
-    LedUpdate();
-    
-    /* State Machines */
-    ANTTT_SM();
-    ButtonRunActiveState();
+    AntttRunActiveState();
    
     /* System sleep*/
     SystemSleep();
+    
   } /* end while(1) main super loop */
   
 } /* end main() */

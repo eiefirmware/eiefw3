@@ -55,14 +55,6 @@ Includes
 #include "ant_interface.h"
 #include "ant_parameters.h"
 #include "ant_error.h"
-//#include "app_error.h"
-//#include "appconfig.h"
-//#include "boardconfig.h"
-//#include "command.h"
-//#include "global.h"
-//#include "serial.h"
-//#include "system.h"
-//#include "ant_boot_settings_api.h"
 #include "soc_integration.h"
 #include "ant_integration.h"
 #include "ble_integration.h"
@@ -76,19 +68,16 @@ Includes
 #include "bleperipheral_engenuics.h"
 
 
-
-/* MPG nRF51422 implementation headers */
+/* nRF51422 implementation headers */
 #include "interrupts.h"
 #include "main.h"
 #include "typedefs.h"
 #include "utilities.h"
 
-#include "anttt-ehdw-04.h"
+#include "anttt-eief1-01.h"
 
 /* Driver header files */
-#include "buttons.h"
 #include "leds_anttt.h" 
-
 
 /* Application header files */
 #include "anttt.h"

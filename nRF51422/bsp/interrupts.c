@@ -28,15 +28,12 @@ extern volatile u32 G_u32SystemFlags;                  /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
-extern volatile bool G_abButtonDebounceActive[TOTAL_BUTTONS];
-extern volatile u32 G_au32ButtonDebounceTimeStart[TOTAL_BUTTONS];
 
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "Interrupts_" and be declared as static.
 ***********************************************************************************************************************/
-//static u32 Interrupts_u32Timeout;                     /* Timeout counter used across states */
 
 
 /**********************************************************************************************************************
@@ -57,14 +54,10 @@ Promises:
 */
 bool InterruptsInitialize(void)
 {
-#define SD_PRESENT 1
+#define SD_PRESENT 0
   
 #ifndef SD_PRESENT  
-  NVIC_ClearPendingIRQ(RTC1_IRQn);
-  NVIC_EnableIRQ(RTC1_IRQn);
-  
-  NVIC_ClearPendingIRQ(GPIOTE_IRQn);
-  NVIC_EnableIRQ(GPIOTE_IRQn);
+
 #else
   
   u32 u32Result = NRF_SUCCESS;
@@ -73,14 +66,6 @@ bool InterruptsInitialize(void)
   u32Result |= sd_nvic_SetPriority(SD_EVT_IRQn, NRF_APP_PRIORITY_LOW);
   u32Result |= sd_nvic_EnableIRQ(SD_EVT_IRQn);
   
-  // Enable the RTC Peripheral.
-  u32Result |= sd_nvic_SetPriority(RTC1_IRQn, NRF_APP_PRIORITY_LOW);
-  u32Result |= sd_nvic_EnableIRQ(RTC1_IRQn);
-
-  // Enable the GPIOTE Peripheral.
-  u32Result |= sd_nvic_SetPriority(GPIOTE_IRQn, NRF_APP_PRIORITY_LOW);
-  u32Result |= sd_nvic_EnableIRQ(GPIOTE_IRQn);
-
   return (u32Result == NRF_SUCCESS);
 #endif
 
@@ -107,15 +92,7 @@ void TIMER1_IRQHandler(void)
 
 void RTC1_IRQHandler(void)
 {
-  // Clear the Tick Event
-  NRF_RTC1->EVENTS_TICK = 0;
-  
-  // Update global counters.
-  G_u32SystemTime1ms++;
-  if ((G_u32SystemTime1ms % 1000) == 0)
-  {
-    G_u32SystemTime1s++;
-  }
+
 }
 
 
@@ -154,29 +131,12 @@ Promises:
 */
 void GPIOTE_IRQHandler(void)
 {
-  u8 u8ButtonIndex;
 
-  // Disable further GPIOTE Interrupts. Button module will reenable it once button is released.
-  NRF_GPIOTE->INTENCLR = (GPIOTE_INTENCLR_IN0_Msk | GPIOTE_INTENCLR_IN1_Msk | GPIOTE_INTENCLR_IN2_Msk);
-
-  // Loop over 3 GPIOTE Channels
-  for (u8 u8Channel = 0; u8Channel < 3; u8Channel++)
-  {
-    // Check if Interrupt occured on this channel.
-    if (NRF_GPIOTE->EVENTS_IN[u8Channel] == 1)
-    {
-       u8ButtonIndex = ( (u8Channel * 2) + u8Channel) + ButtonGetActiveColumn();
-       
-       // Clear Channel Interrupt and Set Button Debounce Flags on buttons.
-       // SW_ROWx + Active COLx corresponds to the Index of the button being pressed (0-8).
-       NRF_GPIOTE->EVENTS_IN[u8Channel] = 0;   // Clear Channel Event.
-       G_abButtonDebounceActive[u8ButtonIndex] = true;
-       G_au32ButtonDebounceTimeStart[u8ButtonIndex] = G_u32SystemTime1ms;
-       return;
-    }
-  }
 
 } /* end GPIOTE_IRQHandler() */
+
+
+
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
