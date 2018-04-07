@@ -178,16 +178,13 @@
         <name>$PROJ_DIR$\..\bsp\ant_integration.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\anttt-ehdw-04.h</name>
+        <name>$PROJ_DIR$\..\bsp\anttt-eief1-01.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\ble_integration.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\bleperipheral.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\bsp\buttons.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\configuration.h</name>
@@ -211,16 +208,13 @@
         <name>$PROJ_DIR$\..\bsp\ant_integration.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\anttt-ehdw-04.c</name>
+        <name>$PROJ_DIR$\..\bsp\anttt-eief1-01.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\ble_integration.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\bleperipheral.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\bsp\buttons.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\interrupts.c</name>
