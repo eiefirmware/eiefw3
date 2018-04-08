@@ -60,7 +60,7 @@
                 </option>
                 <option>
                     <name>CExtraOptions</name>
-                    <state>--drv_vector_table_base=0x0</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CFpuProcessor</name>
@@ -1364,7 +1364,7 @@
             </plugin>
             <plugin>
                 <file>$TOOLKIT_DIR$\plugins\rtos\CMX\CmxArmPlugin.ENU.ewplugin</file>
-                <loadFlag>1</loadFlag>
+                <loadFlag>0</loadFlag>
             </plugin>
             <plugin>
                 <file>$TOOLKIT_DIR$\plugins\rtos\CMX\CmxTinyArmPlugin.ENU.ewplugin</file>
@@ -1420,7 +1420,7 @@
             </plugin>
             <plugin>
                 <file>$EW_DIR$\common\plugins\uCProbe\uCProbePlugin.ENU.ewplugin</file>
-                <loadFlag>1</loadFlag>
+                <loadFlag>0</loadFlag>
             </plugin>
         </debuggerPlugins>
     </configuration>

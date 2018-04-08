@@ -73,7 +73,7 @@ void SPI0_TWI0_IRQHandler(void)
 
 #ifdef SPI_MASTER_1_ENABLE
 /**
- * @brief SPI0 interrupt handler.
+ * @brief SPI1 interrupt handler.
  */
 void SPI1_TWI1_IRQHandler(void)
 {
@@ -90,7 +90,7 @@ void SPI1_TWI1_IRQHandler(void)
 
 #if defined(SPI_MASTER_0_ENABLE) || defined(SPI_MASTER_1_ENABLE)
 /**
- * @breif Function for getting an instance of SPI master.
+ * @brief Function for getting an instance of SPI master.
  */
 static __INLINE volatile spi_master_instance_t * spi_master_get_instance(
     const spi_master_hw_instance_t spi_master_hw_instance)

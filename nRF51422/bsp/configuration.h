@@ -69,15 +69,15 @@ Includes
 
 
 /* nRF51422 implementation headers */
+#include "eief1_nrf51-01.h"
 #include "interrupts.h"
 #include "main.h"
 #include "typedefs.h"
 #include "utilities.h"
 
-#include "anttt-eief1-01.h"
 
 /* Driver header files */
-#include "leds_anttt.h" 
+#include "leds_eief1_nRF51.h" 
 
 /* Application header files */
 #include "anttt.h"

@@ -607,6 +607,14 @@
                 <option>
                     <name>AUserIncludes</name>
                     <state>$PROJ_DIR$\..\bsp</state>
+                    <state>$PROJ_DIR$\..\application</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0\Include</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\s310</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\ble</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\ble\ble_services</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\ble\device_manager</state>
+                    <state>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\app_common</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -2037,9 +2045,6 @@
                 <name>$PROJ_DIR$\..\bsp\ant_integration.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\anttt-eief1-01.h</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\bsp\ble_integration.h</name>
             </file>
             <file>
@@ -2049,10 +2054,13 @@
                 <name>$PROJ_DIR$\..\bsp\configuration.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\bsp\eief1_nrf51-01.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\bsp\interrupts.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\leds_anttt.h</name>
+                <name>$PROJ_DIR$\..\bsp\leds_eieF1_nRF51.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\soc_integration.h</name>
@@ -2067,19 +2075,19 @@
                 <name>$PROJ_DIR$\..\bsp\ant_integration.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\anttt-eief1-01.c</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\bsp\ble_integration.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\bleperipheral.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\bsp\eief1_nrf51-01.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\bsp\interrupts.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\leds_anttt.c</name>
+                <name>$PROJ_DIR$\..\bsp\leds_eief1_nRF51.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\soc_integration.c</name>
@@ -2144,6 +2152,9 @@
             <file>
                 <name>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\s310\nrf_soc.h</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\spi_master.h</name>
+            </file>
         </group>
         <group>
             <name>Source</name>
@@ -2155,6 +2166,9 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\nordic_sdk6_1_0\iar_startup_nrf51.s</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\nordic_sdk6_1_0\spi_master.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\nordic_sdk6_1_0\system_nrf51422.c</name>

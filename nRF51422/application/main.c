@@ -45,33 +45,28 @@ contraints but must complete execution regardless of success or failure of start
 void main(void)
 {
   G_u32SystemFlags |= _SYSTEM_INITIALIZING;
-  
-  // Due to the switch that the application makes from the User mode system to SoftDevice
-  // mode System, this module sets up the basic clocks and I/Os, followed by enabling the SD.
-  // Once the SD is enabled, the application shall only use the SD provided system calls
 
-  __disable_interrupt();
-
-  /* Clock, GPIO and SoftDevice setup */  
-  ClockSetup();
+  /* Watchdog, GPIO and SoftDevice setup */  
+  WatchDogSetup(); 
   GpioSetup();
 
-  __enable_interrupt();
-  
-  // Enable the s310 SoftDevice Stack. If Failure, we shall not progress as 
-  // successive code is dependent on SD success.
-  if (!SocIntegrationInitialize())
+  /* Enable the s310 SoftDevice Stack. If Failure, we shall not progress as 
+  successive code is dependent on SD success. 
+  Once the SD is enabled, the application shall only use the SD provided system calls
+  for access to processor resources that are restricted by the SD. */
+  if ( !SocIntegrationInitialize() )
   {
+    NRF_GPIO->OUTSET = P0_29_LED_RED | P0_26_LED_BLU;
     while (1);
   }
-  
+
   /* Low Level Initialization Modules */
-  WatchDogSetup(); /* During development, set to not reset processor if timeout */
+  ClockSetup();
+  InterruptSetup();
   SysTickSetup();
-  InterruptsInitialize();
     
   /* Driver initialization */
-
+  LedInitialize();
   ANTIntegrationInitialize();
   BLEIntegrationInitialize();
   bleperipheralInitialize();
@@ -87,6 +82,7 @@ void main(void)
   {
     SocIntegrationHandler();
     AntttRunActiveState();
+    LedUpdate();
    
     /* System sleep*/
     SystemSleep();

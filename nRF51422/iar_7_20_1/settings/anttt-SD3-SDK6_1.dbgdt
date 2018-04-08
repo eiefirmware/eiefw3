@@ -4,9 +4,9 @@
   <Desktop>
     <Static>
       <Debug-Log>
-        <ColumnWidth0>27</ColumnWidth0>
-        <ColumnWidth1>992</ColumnWidth1>
-      </Debug-Log>
+        
+        
+      <ColumnWidth0>27</ColumnWidth0><ColumnWidth1>992</ColumnWidth1></Debug-Log>
       <Build>
         <ColumnWidth0>27</ColumnWidth0>
         <ColumnWidth1>744</ColumnWidth1>
@@ -15,25 +15,25 @@
       </Build>
       <Workspace>
         <ColumnWidths>
-          <Column0>256</Column0>
-          <Column1>27</Column1>
-          <Column2>27</Column2>
-          <Column3>27</Column3>
-        </ColumnWidths>
+          
+          
+          
+          
+        <Column0>225</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Disassembly>
         <col-names>
-          <item>Disassembly</item>
-          <item>_I0</item>
-        </col-names>
+          
+          
+        <item>Disassembly</item><item>_I0</item></col-names>
         <col-widths>
-          <item>500</item>
-          <item>20</item>
-        </col-widths>
-        <DisasmHistory/>
-        <ShowCodeCoverage>1</ShowCodeCoverage>
-        <ShowInstrProfiling>1</ShowInstrProfiling>
-      </Disassembly>
+          
+          
+        <item>500</item><item>20</item></col-widths>
+        <DisasmHistory><item>0x20000</item></DisasmHistory>
+        
+        
+      <ShowCodeCoverage>1</ShowCodeCoverage><ShowInstrProfiling>1</ShowInstrProfiling></Disassembly>
       <Breakpoints>
         <col-names>
           <item>Breakpoint</item>
@@ -161,29 +161,34 @@
       </CallStack>
       <STACK_1>
         <col-names>
-          <item>Data</item>
-          <item>Frame</item>
-          <item>Location</item>
-          <item>Type</item>
-          <item>Value</item>
-          <item>Variable</item>
-        </col-names>
+          
+          
+          
+          
+          
+          
+        <item>Data</item><item>Frame</item><item>Location</item><item>Type</item><item>Value</item><item>Variable</item></col-names>
         <col-widths>
-          <item>100</item>
-          <item>100</item>
-          <item>100</item>
-          <item>100</item>
-          <item>100</item>
-          <item>100</item>
-        </col-widths>
-        <stack>CSTACK</stack>
-        <width>4</width>
-        <vars>1</vars>
-        <offset>0</offset>
-      </STACK_1>
-    </Static>
+          
+          
+          
+          
+          
+          
+        <item>100</item><item>100</item><item>100</item><item>100</item><item>100</item><item>100</item></col-widths>
+        
+        
+        
+        
+      <stack>CSTACK</stack><width>4</width><vars>1</vars><offset>0</offset></STACK_1>
+    <Find-in-Files><ColumnWidth0>281</ColumnWidth0><ColumnWidth1>46</ColumnWidth1><ColumnWidth2>421</ColumnWidth2><ColumnWidth3>187</ColumnWidth3></Find-in-Files></Static>
     <Windows>
-      <Wnd3>
+      
+      
+      
+      
+      
+    <Wnd3>
         <Tabs>
           <Tab>
             <Identity>TabID-26105-28258</Identity>
@@ -202,27 +207,21 @@
             <TabName>Breakpoints</TabName>
             <Factory>Breakpoints</Factory>
           </Tab>
-        </Tabs>
-        <SelectedTab>0</SelectedTab>
-      </Wnd3>
-      <Wnd5>
+        <Tab><Identity>TabID-6456-17863</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd3><Wnd5>
         <Tabs>
           <Tab>
             <Identity>TabID-4085-28262</Identity>
             <TabName>Workspace</TabName>
             <Factory>Workspace</Factory>
             <Session>
-              <NodeDict>
-                <ExpandedNode>anttt-SD3-SDK6_1</ExpandedNode>
-                <ExpandedNode>anttt-SD3-SDK6_1/Application</ExpandedNode>
-                <ExpandedNode>anttt-SD3-SDK6_1/Application/Source</ExpandedNode>
-              </NodeDict>
-            </Session>
+              
+            <NodeDict><ExpandedNode>anttt-SD3-SDK6_1</ExpandedNode><ExpandedNode>anttt-SD3-SDK6_1/Application</ExpandedNode><ExpandedNode>anttt-SD3-SDK6_1/Application/Include</ExpandedNode><ExpandedNode>anttt-SD3-SDK6_1/Application/Source</ExpandedNode><ExpandedNode>anttt-SD3-SDK6_1/_Nordic_SDK_6_1_0</ExpandedNode><ExpandedNode>anttt-SD3-SDK6_1/_Nordic_SDK_6_1_0/Include</ExpandedNode><ExpandedNode>anttt-SD3-SDK6_1/_Nordic_SDK_6_1_0/Source</ExpandedNode></NodeDict></Session>
           </Tab>
         </Tabs>
-        <SelectedTab>0</SelectedTab>
-      </Wnd5>
-      <Wnd7>
+        
+      <SelectedTab>0</SelectedTab></Wnd5><Wnd7>
         <Tabs>
           <Tab>
             <Identity>TabID-20877-28356</Identity>
@@ -254,20 +253,19 @@
             <Session/>
           </Tab>
         </Tabs>
-        <SelectedTab>2</SelectedTab>
-      </Wnd7>
-      <Wnd8>
+        
+      <SelectedTab>2</SelectedTab></Wnd7><Wnd8>
         <Tabs>
           <Tab>
             <Identity>TabID-9083-28373</Identity>
             <TabName>Register</TabName>
             <Factory>Register</Factory>
             <Session>
-              <REG1>0</REG1>
-              <REG2>0</REG2>
-              <Group>0</Group>
-              <States>0</States>
-            </Session>
+              
+              
+              
+              
+            <REG1>0</REG1><REG2>0</REG2><Group>0</Group><States>0</States></Session>
           </Tab>
           <Tab>
             <Identity>TabID-18786-28396</Identity>
@@ -291,20 +289,19 @@
             <Session/>
           </Tab>
         </Tabs>
-        <SelectedTab>0</SelectedTab>
-      </Wnd8>
-      <Wnd9>
+        
+      <SelectedTab>4</SelectedTab></Wnd8><Wnd9>
         <Tabs>
           <Tab>
             <Identity>TabID-19308-28386</Identity>
             <TabName>Register</TabName>
             <Factory>Register</Factory>
             <Session>
-              <REG1>0</REG1>
-              <REG2>0</REG2>
-              <Group>0</Group>
-              <States>0</States>
-            </Session>
+              
+              
+              
+              
+            <REG1>0</REG1><REG2>0</REG2><Group>0</Group><States>0</States></Session>
           </Tab>
           <Tab>
             <Identity>TabID-28489-28418</Identity>
@@ -322,156 +319,21 @@
             <Factory>Locals</Factory>
           </Tab>
         </Tabs>
-        <SelectedTab>0</SelectedTab>
-      </Wnd9>
-    </Windows>
+        
+      <SelectedTab>0</SelectedTab></Wnd9></Windows>
     <Editor>
-      <Pane>
-        <Tab>
-          <Factory>TextEditor</Factory>
-          <Filename>$WS_DIR$\..\application\main.c</Filename>
-          <XPos>0</XPos>
-          <YPos>0</YPos>
-          <SelStart>0</SelStart>
-          <SelEnd>0</SelEnd>
-          <XPos2>0</XPos2>
-          <YPos2>30</YPos2>
-          <SelStart2>2689</SelStart2>
-          <SelEnd2>2689</SelEnd2>
-        </Tab>
-        <ActiveTab>0</ActiveTab>
-      </Pane>
-      <ActivePane>0</ActivePane>
-      <Sizes>
-        <Pane>
-          <X>1000000</X>
-          <Y>1000000</Y>
-        </Pane>
-      </Sizes>
-      <SplitMode>1</SplitMode>
-    </Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\bsp\anttt-eief1-01.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>213</YPos2><SelStart2>7928</SelStart2><SelEnd2>7928</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\nordic_sdk6_1_0\Include\nrf51.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>1187</YPos2><SelStart2>88906</SelStart2><SelEnd2>88906</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\bsp\soc_integration.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>86</YPos2><SelStart2>3362</SelStart2><SelEnd2>3362</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\bsp\interrupts.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>42</YPos2><SelStart2>2663</SelStart2><SelEnd2>2663</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\application\bleperipheral_engenuics.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>48</YPos2><SelStart2>3811</SelStart2><SelEnd2>3811</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\application\bleperipheral_engenuics.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>57</YPos2><SelStart2>0</SelStart2><SelEnd2>0</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\bsp\bleperipheral.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>61</YPos2><SelStart2>1519</SelStart2><SelEnd2>1519</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\application\main.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>33</YPos2><SelStart2>2689</SelStart2><SelEnd2>2689</SelEnd2></Tab><ActiveTab>7</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\bsp\anttt-eief1-01.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>7</XPos2><YPos2>82</YPos2><SelStart2>7170</SelStart2><SelEnd2>7190</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\nordic_sdk6_1_0\Include\nrf51_bitfields.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>2679</YPos2><SelStart2>150933</SelStart2><SelEnd2>150933</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\nordic_sdk6_1_0\spi_master.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>24</YPos2><SelStart2>1266</SelStart2><SelEnd2>1266</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
-      <Top>
-        <Row0>
-          <Sizes>
-            <Toolbar-056E83B0>
-              <key>iaridepm.enu1</key>
-            </Toolbar-056E83B0>
-            <Toolbar-284047D0>
-              <key>debuggergui.enu1</key>
-            </Toolbar-284047D0>
-          </Sizes>
-        </Row0>
-        <Row1>
-          <Sizes>
-            <Toolbar-284059C8>
-              <key>armjlink.enu1</key>
-            </Toolbar-284059C8>
-          </Sizes>
-        </Row1>
-      </Top>
-      <Left>
-        <Row0>
-          <Sizes>
-            <Wnd5>
-              <Rect>
-                <Top>-2</Top>
-                <Left>-2</Left>
-                <Bottom>709</Bottom>
-                <Right>330</Right>
-                <x>-2</x>
-                <y>-2</y>
-                <xscreen>200</xscreen>
-                <yscreen>200</yscreen>
-                <sizeHorzCX>104167</sizeHorzCX>
-                <sizeHorzCY>204918</sizeHorzCY>
-                <sizeVertCX>172917</sizeVertCX>
-                <sizeVertCY>728484</sizeVertCY>
-              </Rect>
-            </Wnd5>
-          </Sizes>
-        </Row0>
-      </Left>
-      <Right>
-        <Row0>
-          <Sizes>
-            <Wnd8>
-              <Rect>
-                <Top>-2</Top>
-                <Left>-2</Left>
-                <Bottom>377</Bottom>
-                <Right>398</Right>
-                <x>-2</x>
-                <y>-2</y>
-                <xscreen>200</xscreen>
-                <yscreen>200</yscreen>
-                <sizeHorzCX>104167</sizeHorzCX>
-                <sizeHorzCY>204918</sizeHorzCY>
-                <sizeVertCX>208333</sizeVertCX>
-                <sizeVertCY>388320</sizeVertCY>
-              </Rect>
-            </Wnd8>
-            <Wnd9>
-              <Rect>
-                <Top>0</Top>
-                <Left>0</Left>
-                <Bottom>0</Bottom>
-                <Right>7</Right>
-                <x>-2</x>
-                <y>375</y>
-                <xscreen>200</xscreen>
-                <yscreen>200</yscreen>
-                <sizeHorzCX>104167</sizeHorzCX>
-                <sizeHorzCY>204918</sizeHorzCY>
-                <sizeVertCX>208333</sizeVertCX>
-                <sizeVertCY>342213</sizeVertCY>
-              </Rect>
-            </Wnd9>
-          </Sizes>
-        </Row0>
-      </Right>
-      <Bottom>
-        <Row0>
-          <Sizes>
-            <Wnd3>
-              <Rect>
-                <Top>-2</Top>
-                <Left>-2</Left>
-                <Bottom>198</Bottom>
-                <Right>961</Right>
-                <x>-2</x>
-                <y>-2</y>
-                <xscreen>963</xscreen>
-                <yscreen>200</yscreen>
-                <sizeHorzCX>501563</sizeHorzCX>
-                <sizeHorzCY>204918</sizeHorzCY>
-                <sizeVertCX>104167</sizeVertCX>
-                <sizeVertCY>204918</sizeVertCY>
-              </Rect>
-            </Wnd3>
-            <Wnd7>
-              <Rect>
-                <Top>0</Top>
-                <Left>0</Left>
-                <Bottom>0</Bottom>
-                <Right>7</Right>
-                <x>959</x>
-                <y>-2</y>
-                <xscreen>963</xscreen>
-                <yscreen>200</yscreen>
-                <sizeHorzCX>501563</sizeHorzCX>
-                <sizeHorzCY>204918</sizeHorzCY>
-                <sizeVertCX>104167</sizeVertCX>
-                <sizeVertCY>204918</sizeVertCY>
-              </Rect>
-            </Wnd7>
-          </Sizes>
-        </Row0>
-      </Bottom>
-      <Float>
-        <Sizes/>
-      </Float>
-    </Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-05A583B0><key>iaridepm.enu1</key></Toolbar-05A583B0><Toolbar-1FDFDDF0><key>debuggergui.enu1</key></Toolbar-1FDFDDF0></Sizes></Row0><Row1><Sizes><Toolbar-1FDFEE58><key>armjlink.enu1</key></Toolbar-1FDFEE58></Sizes></Row1></Top><Left><Row0><Sizes><Wnd5><Rect><Top>-2</Top><Left>-2</Left><Bottom>689</Bottom><Right>316</Right><x>-2</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>204918</sizeHorzCY><sizeVertCX>165625</sizeVertCX><sizeVertCY>707992</sizeVertCY></Rect></Wnd5></Sizes></Row0></Left><Right><Row0><Sizes><Wnd8><Rect><Top>-2</Top><Left>-2</Left><Bottom>374</Bottom><Right>256</Right><x>-2</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>204918</sizeHorzCY><sizeVertCX>134375</sizeVertCX><sizeVertCY>385246</sizeVertCY></Rect></Wnd8><Wnd9><Rect><Top>0</Top><Left>0</Left><Bottom>0</Bottom><Right>7</Right><x>-2</x><y>372</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>204918</sizeHorzCY><sizeVertCX>134375</sizeVertCX><sizeVertCY>324795</sizeVertCY></Rect></Wnd9></Sizes></Row0></Right><Bottom><Row0><Sizes><Wnd7><Rect><Top>-2</Top><Left>-2</Left><Bottom>218</Bottom><Right>1922</Right><x>-2</x><y>-2</y><xscreen>1924</xscreen><yscreen>220</yscreen><sizeHorzCX>1002083</sizeHorzCX><sizeHorzCY>225410</sizeHorzCY><sizeVertCX>104167</sizeVertCX><sizeVertCY>204918</sizeVertCY></Rect></Wnd7></Sizes></Row0></Bottom><Float><Sizes><Wnd3><Rect><Top>0</Top><Left>0</Left><Bottom>0</Bottom><Right>7</Right><x>-2</x><y>-2</y><FloatX>860</FloatX><FloatY>409</FloatY><FloatWidth>200</FloatWidth><FloatHeight>200</FloatHeight><xscreen>962</xscreen><yscreen>220</yscreen><sizeHorzCX>501042</sizeHorzCX><sizeHorzCY>225410</sizeHorzCY><sizeVertCX>104167</sizeVertCX><sizeVertCY>204918</sizeVertCY></Rect></Wnd3></Sizes></Float></Positions>
   </Desktop>
 </Project>
 

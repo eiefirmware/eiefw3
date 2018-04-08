@@ -72,7 +72,9 @@ Function Declarations
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Protected functions                                                                                                */
 /*--------------------------------------------------------------------------------------------------------------------*/
-bool InterruptsInitialize(void);
+bool InterruptSetup(void);
+bool SystemEnterCriticalSection(u8* pu8NestedStatus_);
+bool SystemExitCriticalSection(u8 u8NestedStatus_);
 
 void HardFault_Handler(u32 u32ProgramCounter_, u32 u32LinkRegister_);
 void TIMER1_IRQHandler(void);

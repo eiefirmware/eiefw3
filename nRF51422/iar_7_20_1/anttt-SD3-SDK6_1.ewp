@@ -1993,6 +1993,9 @@
         <name>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\nrf51.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\nrf51_bitfields.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\nordic_sdk6_1_0\Include\nrf_assert.h</name>
       </file>
       <file>
@@ -2026,6 +2029,9 @@
         <name>$PROJ_DIR$\..\nordic_sdk6_1_0\system_nrf51422.c</name>
       </file>
     </group>
+    <file>
+      <name>$PROJ_DIR$\..\nordic_sdk6_1_0\spi_master.c</name>
+    </file>
   </group>
   <group>
     <name>Application</name>

@@ -62,7 +62,7 @@ Constants / Definitions
 */
 
 
-#define DEVICE_NAME                     "BLETT4660"                                  /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "BLETT_JASON"                                  /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "Engenuics"                                  /**< Manufacturer. Will be passed to Device Information Service. */
 #define BLEPERIPHERAL_DEVICE_APPEARANCE BLE_APPEARANCE_HID_GAMEPAD                   // Advertise as a HID Gamepad device.
 

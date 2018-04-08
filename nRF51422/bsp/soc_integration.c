@@ -1,8 +1,6 @@
-/**********************************************************************************************************************
-File: soc_integration.c                                                                
-
-Description:
-This is a soc_integration .c file new source code
+/*!********************************************************************************************************************
+@file soc_integration.c                                                                
+@brief This is a soc_integration .c file new source code
 **********************************************************************************************************************/
 
 #include "configuration.h"
@@ -42,44 +40,48 @@ Function Definitions
 /* Protected functions                                                                                                */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: SocIntegrationInitialize
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn SocIntegrationInitialize
+@brief Initializes the SoftDevice to use the Protocol Stacks. 
 
-Description:
-Initializes the SoftDevice to use the Protocol Stacks. Enables the SD_EVT_IRQ to allow forwarding of Protocol Interrupts to the
+Enables the SD_EVT_IRQ to allow forwarding of Protocol Interrupts to the
 application.
 
 Requires:
-  - Called once during initialization.
+- Called once during initialization.
 
 Promises:
-  - Returns TRUE if SoftDevice enabled successfully.
-  - Returns FALSE if SoftDevice enabling failed.
+- Returns TRUE if SoftDevice enabled successfully.
+- Returns FALSE if SoftDevice enabling failed.
+
 */
 bool SocIntegrationInitialize(void)
 {
-  uint32_t result = NRF_SUCCESS;
+  u32 u32Result;
   
-  result |= sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, SocSoftdeviceAssertCallback);
-  return result == NRF_SUCCESS;
-}
+  u32Result = sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, SocSoftdeviceAssertCallback);
+
+  return (u32Result == NRF_SUCCESS);
+  
+} /* end SocIntegrationInitialize() */
 
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: SocIntegrationHandler
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void SocIntegrationHandler(void)
+@brief This is the global event checker for Protocol Events. 
 
-Description:
-This is the global event checker for Protocol Events. It is called continuously from main(). It checks if the 
+This function is called continuously from main(). It checks if the 
 _SYSTEM_PROTOCOL_EVENT is set. If so, it calls the dispatchers for the protocol event handlers.
 
 Requires:
-  - SoftDevice is enabled
-  - BLE and ANT have been initialized
-  - Application is running
+- SoftDevice is enabled
+- BLE and ANT have been initialized
+- Application is running
 
 Promises:
-  - Proper dispatching of Protocol events to its handlers
-  - Clears the _SYSTEM_PROTOCOL_EVENT system flag
+- Proper dispatching of Protocol events to its handlers
+- Clears the _SYSTEM_PROTOCOL_EVENT system flag
+
 */
 void SocIntegrationHandler(void)
 {
@@ -97,23 +99,23 @@ void SocIntegrationHandler(void)
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: SocIntegrationHandler
-
-Description:
-Assertion handler from the Softdevice.
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void SocSoftdeviceAssertCallback(uint32_t ulPC, uint16_t usLineNum, const uint8_t *pucFileName)
+@brief Assertion handler from the Softdevice.
 
 Requires:
-  - None
+- NONE
 
 Promises:
-  - Halts the system.
-  - Provides the PC counter, Line Num and the FileName in the SoftDevice Code that caused the assertion.
+- Halts the system.
+- Provides the PC counter, Line Num and the FileName in the SoftDevice Code that caused the assertion.
+
 */
 void SocSoftdeviceAssertCallback(uint32_t ulPC, uint16_t usLineNum, const uint8_t *pucFileName)
 {
-   while (1);
-}
+  while (1);
+  
+} /* end SocSoftdeviceAssertCallback() */
 
 
 

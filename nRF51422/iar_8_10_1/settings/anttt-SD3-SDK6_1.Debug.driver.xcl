@@ -2,8 +2,6 @@
 
 "--cpu=Cortex-M0" 
 
-"--drv_vector_table_base=0x0" 
-
 "--fpu=None" 
 
 "-p" 
