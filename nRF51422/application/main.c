@@ -45,6 +45,7 @@ contraints but must complete execution regardless of success or failure of start
 ***********************************************************************************************************************/
 void main(void)
 {
+#ifdef SOFTDEVICE_ENABLED  
   /* This must be done before any RAM accesses.
   Enable the s310 SoftDevice Stack. If Failure, we shall not progress as 
   successive code is dependent on SD success. 
@@ -57,7 +58,8 @@ void main(void)
     NRF_GPIO->OUTSET = P0_29_LED_RED | P0_26_LED_BLU;
     while (1);
   }
-
+#endif
+  
   G_u32SystemFlags |= _SYSTEM_INITIALIZING;
 
   /* Low Level Initialization Modules */
@@ -65,13 +67,18 @@ void main(void)
   GpioSetup();
   ClockSetup();
   InterruptSetup();
+  PowerSetup();
   SysTickSetup();
     
   /* Driver initialization */
   LedInitialize();
+
+#ifdef SOFTDEVICE_ENABLED
   ANTIntegrationInitialize();
   BLEIntegrationInitialize();
   bleperipheralInitialize();
+#endif
+
   
   /* Application initialization */
   AntttInitialize();

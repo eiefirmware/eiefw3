@@ -2060,7 +2060,7 @@
                 <name>$PROJ_DIR$\..\bsp\interrupts.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\leds_eieF1_nRF51.h</name>
+                <name>$PROJ_DIR$\..\bsp\leds_eief1_nrf51.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\soc_integration.h</name>
@@ -2087,7 +2087,7 @@
                 <name>$PROJ_DIR$\..\bsp\interrupts.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\leds_eief1_nRF51.c</name>
+                <name>$PROJ_DIR$\..\bsp\leds_eief1_nrf51.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\soc_integration.c</name>

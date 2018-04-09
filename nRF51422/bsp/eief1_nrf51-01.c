@@ -60,21 +60,7 @@ bool ClockSetup(void)
   u32 u32Status = 0;
   u32 u32ClockStartTimeout = OSC_STARTUP_TIMOUT;
   
-  /* Start the main clock (HFCLK) and wait for the event to indicate it has started */
-#if 0
-  NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-  NRF_CLOCK->TASKS_HFCLKSTART = 1;
-  while( !NRF_CLOCK->EVENTS_HFCLKSTARTED && (--u32ClockStartTimeout != 0) );
-  
-  /* Check for timeout - if the clock didn't start, turn it off and flag it */
-  if(u32ClockStartTimeout == 0)
-  {
-    NRF_CLOCK->TASKS_HFCLKSTOP = 1;
-    G_u32SystemFlags |= _SYSTEM_HFCLK_NO_START;
-  }
-  NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-#endif
-
+#ifdef SOFTDEVICE_ENABLED  
   /* Ensure the 16MHz Crystal is running */
   u32Result |= sd_clock_hfclk_is_running(&u32Status);
   if(!u32Status)
@@ -93,9 +79,20 @@ bool ClockSetup(void)
       G_u32SystemFlags |= _SYSTEM_HFCLK_NO_START;
     }
   }
+#else  
+  /* Start the main clock (HFCLK) and wait for the event to indicate it has started */
+  NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
+  NRF_CLOCK->TASKS_HFCLKSTART = 1;
+  while( !NRF_CLOCK->EVENTS_HFCLKSTARTED && (--u32ClockStartTimeout != 0) );
   
-  return (u32Result == NRF_SUCCESS);
-#if 0  
+  /* Check for timeout - if the clock didn't start, turn it off and flag it */
+  if(u32ClockStartTimeout == 0)
+  {
+    NRF_CLOCK->TASKS_HFCLKSTOP = 1;
+    G_u32SystemFlags |= _SYSTEM_HFCLK_NO_START;
+  }
+  NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
+  
   /* Setup and start the 32.768kHz (LFCLK) clock (synthesized from HFCLK) */
   NRF_CLOCK->LFCLKSRC = (CLOCK_LFCLKSRC_SRC_Synth << CLOCK_LFCLKSRC_SRC_Pos);
   NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
@@ -105,6 +102,8 @@ bool ClockSetup(void)
   while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0);
   NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;  
 #endif
+
+  return (u32Result == NRF_SUCCESS);
   
 } /* end ClockSetup */
 
@@ -210,10 +209,20 @@ bool SysTickSetup(void)
   /* Clear then start the RTC */
   NRF_RTC1->TASKS_CLEAR = 1;
   NRF_RTC1->TASKS_START = 1;
-  
+
+#ifdef SOFTDEVICE_ENABLED  
   /* Enable the interrupt via the SD */
   u32Result |= sd_nvic_SetPriority(RTC1_IRQn, NRF_APP_PRIORITY_LOW);
   u32Result |= sd_nvic_EnableIRQ(RTC1_IRQn);
+#else
+
+#ifdef INTERRUPTS_ENABLED
+  /* Enable the RTC interrupt */
+  NVIC_SetPriority(RTC1_IRQn, NRF_APP_PRIORITY_LOW);
+  NVIC_EnableIRQ(RTC1_IRQn);
+#endif /* INTERRUPTS_ENABLED */
+  
+#endif /* SOFTDEVICE_ENABLED */
   
   return (u32Result == NRF_SUCCESS);
   
@@ -234,8 +243,26 @@ Promises:
 */
 void SystemSleep(void)
 {    
-    sd_app_evt_wait();
-    
+#ifdef SOFTDEVICE_ENABLED  
+  sd_app_evt_wait();
+#else
+
+#ifdef INTERRUPTS_ENABLED
+  __WFI();
+#else
+  for(u32 i = 0; i < 1600; i++);
+
+  /* Update global counters */
+  G_u32SystemTime1ms++;
+  if ((G_u32SystemTime1ms % 1000) == 0)
+  {
+    G_u32SystemTime1s++;
+    LedToggle(YELLOW);
+  }
+#endif /* INTERRUPTS_ENABLED */
+  
+#endif /* SOFTDEVICE_ENABLED */  
+  
 } /* end SystemSleep(void) */
 
 

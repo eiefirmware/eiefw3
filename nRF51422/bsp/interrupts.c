@@ -54,10 +54,12 @@ Promises:
 bool InterruptSetup(void)
 {
   u32 u32Result = NRF_SUCCESS;
-  
+
+#ifdef SOFTDEVICE_ENABLED  
   /* Must enable the SoftDevice Interrupt first */
   u32Result |= sd_nvic_SetPriority(SD_EVT_IRQn, NRF_APP_PRIORITY_LOW);
   u32Result |= sd_nvic_EnableIRQ(SD_EVT_IRQn);
+#endif
   
   return (u32Result == NRF_SUCCESS);
 

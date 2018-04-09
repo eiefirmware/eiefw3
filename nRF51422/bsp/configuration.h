@@ -13,6 +13,8 @@ to match the target hardware.
 /**********************************************************************************************************************
 Runtime Switches
 ***********************************************************************************************************************/
+//#define SOFTDEVICE_ENABLED  
+//#define INTERRUPTS_ENABLED  
 
 /**********************************************************************************************************************
 Type Definitions
@@ -68,7 +70,7 @@ Includes
 
 
 /* Driver header files */
-#include "leds_eief1_nRF51.h" 
+#include "leds_eief1_nrf51.h" 
 
 /* Application header files */
 #include "anttt.h"
