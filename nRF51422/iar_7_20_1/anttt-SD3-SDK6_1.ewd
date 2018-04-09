@@ -61,7 +61,7 @@
         </option>
         <option>
           <name>CExtraOptions</name>
-          <state>- -drv_vector_table_base=0x0</state>
+          <state></state>
         </option>
         <option>
           <name>CFpuProcessor</name>

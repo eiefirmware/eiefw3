@@ -1,18 +1,11 @@
-/**********************************************************************************************************************
-File: configuration.h      
+/*!*********************************************************************************************************************
+@file configuration.h      
+@brief Main configuration header file for project.  
 
-Description:
-Main configuration header file for project.  This file bridges many of the generic features of the 
+This file bridges many of the generic features of the 
 firmware to the specific features of the design. The definitions should be updated
 to match the target hardware.  
- 
-Bookmarks:
-!!!!! External module peripheral assignments
-@@@@@ GPIO board-specific parameters
-##### Communication peripheral board-specific parameters
-
-
-***********************************************************************************************************************/
+ ***********************************************************************************************************************/
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
@@ -28,14 +21,12 @@ Type Definitions
 
 /**********************************************************************************************************************
 Includes
-
-
+**********************************************************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
 #include "nrf.h"
 #include "system_nrf51.h"
 
-***********************************************************************************************************************/
 /* Standard C and nRF SoC/SDK headers */
 #include <stdlib.h>
 #include <string.h>
@@ -82,9 +73,6 @@ Includes
 /* Application header files */
 #include "anttt.h"
 
-/**********************************************************************************************************************
-!!!!! External device peripheral assignments
-***********************************************************************************************************************/
 
 
 

@@ -21,12 +21,13 @@ extern volatile u32 G_u32SystemTime1s;                 /* From board-specific so
 
 extern fnCode_type ANTTT_SM;
 
+
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "Main_" and be declared as static.
 ***********************************************************************************************************************/
 u32 Main_u32ErrorCode;
-u8 Main_u8TestMessage[] = "9876 test message from ANT";
+
 
 /***********************************************************************************************************************
 Function Definitions
@@ -44,23 +45,24 @@ contraints but must complete execution regardless of success or failure of start
 ***********************************************************************************************************************/
 void main(void)
 {
-  G_u32SystemFlags |= _SYSTEM_INITIALIZING;
-
-  /* Watchdog, GPIO and SoftDevice setup */  
-  WatchDogSetup(); 
-  GpioSetup();
-
-  /* Enable the s310 SoftDevice Stack. If Failure, we shall not progress as 
+  /* This must be done before any RAM accesses.
+  Enable the s310 SoftDevice Stack. If Failure, we shall not progress as 
   successive code is dependent on SD success. 
   Once the SD is enabled, the application shall only use the SD provided system calls
   for access to processor resources that are restricted by the SD. */
-  if ( !SocIntegrationInitialize() )
+  Main_u32ErrorCode = sd_softdevice_enable(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, SocSoftdeviceAssertCallback);
+  
+  if ( Main_u32ErrorCode != NRF_SUCCESS )
   {
     NRF_GPIO->OUTSET = P0_29_LED_RED | P0_26_LED_BLU;
     while (1);
   }
 
+  G_u32SystemFlags |= _SYSTEM_INITIALIZING;
+
   /* Low Level Initialization Modules */
+  WatchDogSetup(); 
+  GpioSetup();
   ClockSetup();
   InterruptSetup();
   SysTickSetup();

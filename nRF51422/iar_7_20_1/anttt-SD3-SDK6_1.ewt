@@ -178,9 +178,6 @@
         <name>$PROJ_DIR$\..\bsp\ant_integration.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\anttt-eief1-01.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\bsp\ble_integration.h</name>
       </file>
       <file>
@@ -190,10 +187,13 @@
         <name>$PROJ_DIR$\..\bsp\configuration.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\bsp\eief1_nrf51-01.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\bsp\interrupts.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\leds_anttt.h</name>
+        <name>$PROJ_DIR$\..\bsp\leds_eieF1_nRF51.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\soc_integration.h</name>
@@ -208,19 +208,19 @@
         <name>$PROJ_DIR$\..\bsp\ant_integration.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\anttt-eief1-01.c</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\bsp\ble_integration.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\bleperipheral.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\bsp\eief1_nrf51-01.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\bsp\interrupts.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\leds_anttt.c</name>
+        <name>$PROJ_DIR$\..\bsp\leds_eief1_nRF51.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\soc_integration.c</name>
@@ -229,6 +229,9 @@
         <name>$PROJ_DIR$\..\bsp\utilities.c</name>
       </file>
     </group>
+    <file>
+      <name>$PROJ_DIR$\..\bsp\nRF51422_QFAA.icf</name>
+    </file>
   </group>
   <group>
     <name>_Nordic_SDK_6_1_0</name>

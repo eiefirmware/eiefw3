@@ -68,21 +68,21 @@ static LedConfigType Leds_asLedArray[TOTAL_LEDS] =
 /* Public functions */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: LedOn
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void LedOn(LedNameType eLED_)
+@brief Turn the specified LED on.  
 
-Description:
-Turn the specified LED on.  Automatically takes care of the active low vs. active
-high LEDs.  
+Automatically takes care of the active low vs. active high LEDs.  
 
 Requires:
-  - eLED_ is a valid LED index
-  - Definitions in Leds_asLedArray[eLED_] are correct
-  - Supports port 0 GPIO only
+- Definitions in Leds_asLedArray[eLED_] are correct
+- Supports port 0 GPIO only
+@PARAM  eLED_ is a valid LED index
 
 Promises:
-  - Requested LED is turned on 
-  - Requested LED is always set to LED_NORMAL_MODE mode
+- Requested LED is turned on 
+- Requested LED is always set to LED_NORMAL_MODE mode
+
 */
 void LedOn(LedNameType eLED_)
 {
@@ -102,20 +102,21 @@ void LedOn(LedNameType eLED_)
 } /* end LedOn() */
 
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: LedOff
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void LedOff(LedNameType eLED_)
+@brief Turn the specified LED off.  
 
-Description:
-Turn the specified LED off.  Automatically takes care of the active low vs. active
-high LEDs.  
+Automatically takes care of the active low vs. active high LEDs.  
 
 Requires:
-  - eLED_ is a valid LED index
-  - Definitions in Leds_asLedArray[eLED_] are correct
+- Definitions in Leds_asLedArray[eLED_] are correct
+- Supports port 0 GPIO only
+@PARAM  eLED_ is a valid LED index
 
 Promises:
-  - Requested LED is turned off
-  - Requested LED is always set to LED_NORMAL_MODE mode
+- Requested LED is turned off 
+- Requested LED is always set to LED_NORMAL_MODE mode
+
 */
 void LedOff(LedNameType eLED_)
 {
@@ -134,18 +135,21 @@ void LedOff(LedNameType eLED_)
 } /* end LedOff() */
 
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: LedToggle
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void LedToggle(LedNameType eLED_)
+@brief Toggles the specified LED.  
 
-Description:
-Toggle the specified LED.
+Automatically takes care of the active low vs. active high LEDs.  
 
 Requires:
-  - eLED_ is a valid LED index
-  - eLED_ *should* be in LED_NORMAL_MODE
+- LED should be in NORMAL mode
+- Definitions in Leds_asLedArray[eLED_] are correct
+- Supports port 0 GPIO only
+@PARAM  eLED_ is a valid LED index
 
 Promises:
-  - Requested LED is toggled
+- Requested LED is turned toggled 
+
 */
 void LedToggle(LedNameType eLED_)
 {
@@ -158,19 +162,17 @@ void LedToggle(LedNameType eLED_)
 } /* end LedToggle() */
 
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: LedPWM
-
-Description:
-Sets an LED to PWM mode
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void LedPWM(LedNameType eLED_, LedRateType ePwmRate_)
+@brief Sets an LED to PWM mode
 
 Requires:
-  - eLED_ is a valid LED index
-  - ePwmRate_ is an allowed duty cycle:
-    LED_PWM_0, LED_PWM_5, LED_PWM_10, ..., LED_PWM_95, LED_PWM_100
+@PARAM eLED_ is a valid LED index
+@PARAM ePwmRate_ is an allowed duty cycle
 
 Promises:
-  - Requested LED is set to PWM mode at the duty cycle specified
+- Requested LED is set to PWM mode at the duty cycle specified
+
 */
 void LedPWM(LedNameType eLED_, LedRateType ePwmRate_)
 {
@@ -182,19 +184,17 @@ void LedPWM(LedNameType eLED_, LedRateType ePwmRate_)
 } /* end LedPWM() */
 
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: LedBlink
-
-Description:
-Sets an LED to BLINK mode.
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void LedBlink(LedNameType eLED_, LedRateType eBlinkRate_)
+@brief Sets an LED to BLINK mode.
 
 Requires:
-  - eLED_ is a valid LED index
-  - eBlinkRate_ is an allowed frequency:
-    LED_0_5HZ, LED_1HZ, LED_2HZ, LED_4HZ, LED_8HZ
+@PARAM eLED_ is a valid LED index
+@PARAM ePwmRate_ is an allowed duty frequency
 
 Promises:
-  - Requested LED is set to BLINK mode at the rate specified
+- Requested LED is set to BLINK mode at the rate specified
+
 */
 void LedBlink(LedNameType eLED_, LedRateType eBlinkRate_)
 {
@@ -209,23 +209,20 @@ void LedBlink(LedNameType eLED_, LedRateType eBlinkRate_)
 /* Protected functions */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------------------------------------------------
-Function: LedInitialize
-
-Description:
-Initialization of LED system paramters and visual LED check.
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void LedInitialize(void)
+@brief Initialization of LED system paramters and visual LED check.
 
 Requires:
-  - G_u32SystemTime1ms ticking
-  - All LEDs already initialized to LED_NORMAL_MODE mode ON
+- G_u32SystemTime1ms ticking
+- All LEDs already initialized to LED_NORMAL_MODE mode ON
 
 Promises:
-  - All LEDs in LED_NORMAL_MODE mode with OFF
+- All LEDs in LED_NORMAL_MODE mode with OFF
+
 */
 void LedInitialize(void)
 {
-  //u32 u32Timer;
-
   /* A simple on, wait, off sequence to test the driver */
   LedOn(BLUE);
   LedOn(RED);
