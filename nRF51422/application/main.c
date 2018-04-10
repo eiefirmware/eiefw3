@@ -82,6 +82,7 @@ void main(void)
   
   /* Application initialization */
   AntttInitialize();
+  SpiMasterInitialize();
   
   /* Exit initialization */
   G_u32SystemFlags &= ~_SYSTEM_INITIALIZING;

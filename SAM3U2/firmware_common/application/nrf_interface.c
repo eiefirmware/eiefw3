@@ -1,5 +1,5 @@
 /*!*********************************************************************************************************************
-@file user_app1.c                                                                
+@file nrf_interface.c                                                                
 @brief nRF interface application.
 
 Provides a communication link between the SAM3U2 and nRF51422 processors.
@@ -48,8 +48,8 @@ PUBLIC FUNCTIONS
 - NONE
 
 PROTECTED FUNCTIONS
-- void UserApp1Initialize(void)
-- void UserApp1RunActiveState(void)
+- void nrfInterfaceInitialize(void)
+- void nrfInterfaceRunActiveState(void)
 
 
 **********************************************************************************************************************/
@@ -58,10 +58,10 @@ PROTECTED FUNCTIONS
 
 /***********************************************************************************************************************
 Global variable definitions with scope across entire project.
-All Global variable names shall start with "G_<type>UserApp1"
+All Global variable names shall start with "G_<type>nrfInterface"
 ***********************************************************************************************************************/
 /* New variables */
-volatile u32 G_u32UserApp1Flags;                          /*!< @brief Global state flags */
+volatile u32 G_u32nrfInterfaceFlags;                          /*!< @brief Global state flags */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -74,10 +74,21 @@ extern volatile u32 G_u32ApplicationFlags;                /*!< @brief From main.
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
-Variable names shall start with "UserApp1_<type>" and be declared as static.
+Variable names shall start with "nrfInterface_<type>" and be declared as static.
 ***********************************************************************************************************************/
-static fnCode_type UserApp1_pfStateMachine;               /*!< @brief The state machine function pointer */
-//static u32 UserApp1_u32Timeout;                           /*!< @brief Timeout counter used across states */
+static fnCode_type nrfInterface_pfStateMachine;               /*!< @brief The state machine function pointer */
+//static u32 nrfInterface_u32Timeout;                           /*!< @brief Timeout counter used across states */
+static u32 nrfInterface_u32Flags;
+
+static SspConfigurationType nrfInterface_sSspConfig;          /* Configuration information for SSP peripheral */
+static SspPeripheralType* nrfInterface_Ssp;                   /* Pointer to SSP peripheral object */
+
+static u8  nrfInterface_au8RxBuffer[U8_NRF_BUFFER_SIZE];      /* Space for verified received ANT messages */
+static u8* nrfInterface_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the AntRxBuffer */
+static u8* nrfInterface_pu8RxBufferCurrentChar;               /* Pointer to the current char in the AntRxBuffer */
+static u8* nrfInterface_pu8RxBufferUnreadMsg;                 /* Pointer to unread chars in the AntRxBuffer */
+
+static u8 nrfInterface_u8RxBytes;                           /* Unread chars in the AntRxBuffer */
 
 
 /**********************************************************************************************************************
@@ -93,7 +104,7 @@ Function Definitions
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 /*!--------------------------------------------------------------------------------------------------------------------
-@fn void UserApp1Initialize(void)
+@fn void nrfInterfaceInitialize(void)
 
 @brief
 Initializes the State Machine and its variables.
@@ -107,24 +118,54 @@ Promises:
 - NONE
 
 */
-void UserApp1Initialize(void)
+void nrfInterfaceInitialize(void)
 {
-  /* If good initialization, set state to Idle */
-  if( 1 )
+  /* Announce on the debug port that nrfInterface setup is starting and intialize pointers */
+  DebugPrintf("Starting nRF Interface...");
+
+  /* Initialize buffer pointers */  
+  nrfInterface_pu8AntRxBufferNextChar    = nrfInterface_au8RxBuffer;
+  nrfInterface_pu8AntRxBufferCurrentChar = nrfInterface_au8RxBuffer;
+  nrfInterface_pu8AntRxBufferUnreadMsg   = nrfInterface_au8RxBuffer;
+  nrfInterface_u8AntNewRxMessages = 0;
+ 
+  /* Reset the 51422 and initialize SRDY and MRDY */
+  SYNC_MRDY_DEASSERT();
+  SYNC_SRDY_DEASSERT();
+
+  /* Configure the SSP resource to be used for the application */
+  nrfInterface_sSspConfig.SspPeripheral      = NRF_SPI;
+  nrfInterface_sSspConfig.pCsGpioAddress     = NRF_SPI_CS_GPIO;
+  nrfInterface_sSspConfig.u32CsPin           = NRF_SPI_CS_PIN;
+  nrfInterface_sSspConfig.eBitOrder          = LSB_FIRST;
+  nrfInterface_sSspConfig.eSspMode           = SPI_SLAVE_FLOW_CONTROL;
+  nrfInterface_sSspConfig.fnSlaveTxFlowCallback = nrfTxFlowControlCallback;
+  nrfInterface_sSspConfig.fnSlaveRxFlowCallback = nrfRxFlowControlCallback;
+  nrfInterface_sSspConfig.pu8RxBufferAddress = Ant_au8AntRxBuffer;
+  nrfInterface_sSspConfig.ppu8RxNextByte     = &nrfInterface_pu8RxBufferNextChar;
+  nrfInterface_sSspConfig.u16RxBufferSize    = ANT_RX_BUFFER_SIZE;
+
+  nrfInterface_Ssp = SspRequest(&nrfInterface_sSspConfig);
+  NRF_SSP_FLAGS = 0;
+  
+  /* Report status out the debug port */
+  if(nrfInterface_Ssp != NULL)  
   {
-    UserApp1_pfStateMachine = UserApp1SM_Idle;
+    DebugPrintf(G_au8UtilMessageOK);
+    nrfInterface_pfStateMachine = nrfSM_Idle;
   }
   else
   {
-    /* The task isn't properly initialized, so shut it down and don't run */
-    UserApp1_pfStateMachine = UserApp1SM_Error;
+    /* SSP failed, so cannot communicate */
+    DebugPrintf(G_au8UtilMessageFAIL);
+    nrfInterface_pfStateMachine = nrfSM_Error;
   }
 
-} /* end UserApp1Initialize() */
+} /* end nrfInterfaceInitialize() */
 
   
 /*!----------------------------------------------------------------------------------------------------------------------
-@fn void UserApp1RunActiveState(void)
+@fn void nrfInterfaceRunActiveState(void)
 
 @brief Selects and runs one iteration of the current state in the state machine.
 
@@ -138,11 +179,58 @@ Promises:
 - Calls the function to pointed by the state machine function pointer
 
 */
-void UserApp1RunActiveState(void)
+void nrfInterfaceRunActiveState(void)
 {
-  UserApp1_pfStateMachine();
+  nrfInterface_pfStateMachine();
 
-} /* end UserApp1RunActiveState */
+} /* end nrfInterfaceRunActiveState */
+
+
+/*!-----------------------------------------------------------------------------
+@fn  void nrfTxFlowControlCallback(void)
+@brief Callback function during SPI transmit 
+
+Note: Since this function is called from an ISR, it should execute as quickly as possible. 
+
+Requires:
+- NONE 
+
+Promises:
+-
+
+*/
+
+void nrfTxFlowControlCallback(void)
+{
+  /* Indicate the task is ready for data to be sent */
+  NRF_SRDY_ASSERT();
+  
+  
+} /* end nrfTxFlowControlCallback() */
+
+
+/*!-----------------------------------------------------------------------------
+@fn void nrfRxFlowControlCallback(void)
+@brief Callback function to toggle flow control during reception.  
+
+The peripheral task receiving the message must invoke this function after each byte.  
+
+Note: Since this function is called from an ISR, it should execute as quickly as possible. 
+
+
+Requires:
+- ISRs are off already since this is totally not re-entrant
+- A received byte was just written to the Rx buffer
+
+Promises:
+- nrfInterface_pu8RxBufferNextChar is advanced safely so it is ready to receive the next byte
+*/
+void nrfRxFlowControlCallback(void)
+{
+  nrfInterface_pu8RxBufferNextChar++;
+  
+  
+} /* end nrfRxFlowControlCallback() */
 
 
 /*------------------------------------------------------------------------------------------------------------------*/
@@ -154,19 +242,64 @@ void UserApp1RunActiveState(void)
 State Machine Function Definitions
 **********************************************************************************************************************/
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* What does this state do? */
-static void UserApp1SM_Idle(void)
+/* Watch for a CS flag or wait for
+a message to be queued to the nRF Interface */
+static void nrfInterfaceSM_Idle(void)
 {
-    
-} /* end UserApp1SM_Idle() */
+  /* If the CS flag gets asserted, the NRF is ready to clock the system */
+  if( IS_CS_ASSERTED() )
+  {
+    /* MRDY is also asserted, then we are transmitting */
+    if (IS_MRDY_ASSERTED)
+    {
+      /* MRDY can be cleared since the transaction is now in progress. */
+      NRF_MRDY_DEASSERT();
+      nrfInterface_pfStateMachine = nrfInterfaceSM_Tx;
+    }
+    /* Otherwise we are receiving */
+    else
+    {
+      /* Set flag and advance to Rx wait state */
+      NRF_SRDY_ASSERT();
+      nrfInterface_pfStateMachine = nrfInterfaceSM_Rx;
+    }
+  }
+  
+  
+} /* end nrfInterfaceSM_Idle() */
      
 
 /*-------------------------------------------------------------------------------------------------------------------*/
+/* Receive a message from the nRF Interface.  This state holds
+until the message is completely received and the message is 
+processed immediately. Message transmission is complete when the 
+Master releases CS.
+*/
+static void nrfInterfaceSM_Rx(void)          
+{
+  u8 u8Length;
+  
+  /* Watch for CS to deassert */
+  if( !IS_CS_ASSERTED() )
+  {
+    /* The message is complete.  Parse it out to determine what happens. */
+    if(nrfInterface_au8RxBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE)
+    {
+      u8Length = nrfInterface_au8RxBuffer[NRF_LENGTH_INDEX];
+    }
+  }
+  
+  /* In all cases, reset the buffer pointers */
+  
+} /* end nrfInterfaceSM_Error() */
+                
+                
+/*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
-static void UserApp1SM_Error(void)          
+static void nrfInterfaceSM_Error(void)          
 {
   
-} /* end UserApp1SM_Error() */
+} /* end nrfInterfaceSM_Error() */
 
 
 

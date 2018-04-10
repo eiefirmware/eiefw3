@@ -88,6 +88,7 @@ Includes
 /* Common application header files */
 #include "debug.h"
 #include "music.h"
+#include "nrf_interface.h"
 #include "user_app1.h"
 #include "user_app2.h"
 #include "user_app3.h"
@@ -101,7 +102,7 @@ Includes
 #define BLADE_UART                  UART
 #define DEBUG_UART                  USART0
 #define BLADE_SPI                   SPI
-#define ANT_SPI                     USART2
+#define NRF_SPI                     USART2
 
 #ifdef EIE1
 #define SD_SSP                      USART1
@@ -177,20 +178,17 @@ Includes
 #define SSP1_IRQHandler             USART1_IrqHandler
 #endif /* MPGL2 */
 
-/* ANT SPI Peripheral Allocation (USART2) */
-#define USART2_US_CR_INIT           ANT_US_CR_INIT
-#define USART2_US_MR_INIT           ANT_US_MR_INIT
-#define USART2_US_IER_INIT          ANT_US_IER_INIT
-#define USART2_US_IDR_INIT          ANT_US_IDR_INIT
-#define USART2_US_BRGR_INIT         ANT_US_BRGR_INIT
+/* nRF51422 SPI Peripheral Allocation (USART2) */
+#define USART2_US_CR_INIT           NRF_US_CR_INIT
+#define USART2_US_MR_INIT           NRF_US_MR_INIT
+#define USART2_US_IER_INIT          NRF_US_IER_INIT
+#define USART2_US_IDR_INIT          NRF_US_IDR_INIT
+#define USART2_US_BRGR_INIT         NRF_US_BRGR_INIT
 
 #define SSP2_IRQHandler             USART2_IrqHandler
 
-#define ANT_SPI_CS_GPIO             AT91C_BASE_PIOB
-#define ANT_SPI_CS_PIN              PB_22_ANT_USPI2_CS
-
-/* Blade I²C (TWI0) / Accelerometer (MPGL2_R01 only) */
-/* Currently configured directly in sam3u_i2c.c */
+#define NRF_SPI_CS_GPIO             AT91C_BASE_PIOB
+#define NRF_SPI_CS_PIN              PB_22_ANT_USPI2_CS
 
 /*! @endcond */
 
@@ -284,30 +282,27 @@ the board-specific definition header file in section !!!!! GPIO pin names
 
 
 /*----------------------------------------------------------------------------------------------------------------------
-%ANT% Interface Configuration                                                                                                  
+%NRF% Interface Configuration                                                                                                  
 ------------------------------------------------------------------------------------------------------------------------
-Board-specific ANT definitions are kept here
+Board-specific NRF Interface definitions are kept here
 */
-#define ANT_SSP_FLAGS           G_u32Ssp2ApplicationFlags  /*!< Assigns the correct global Application Flags to a self-documenting symbol */
+#define NRF_SSP_FLAGS           G_u32Ssp2ApplicationFlags  /*!< Assigns the correct global Application Flags to a self-documenting symbol */
 
 /*! @cond DOXYGEN_EXCLUDE */
-#define ANT_MRDY_READ_REG      (AT91C_BASE_PIOB->PIO_PDSR & PB_23_ANT_MRDY) 
-#define ANT_MRDY_CLEAR_REG     (AT91C_BASE_PIOB->PIO_CODR = PB_23_ANT_MRDY)     
-#define ANT_MRDY_SET_REG       (AT91C_BASE_PIOB->PIO_SODR = PB_23_ANT_MRDY)
+#define NRF_MRDY_READ_REG      (AT91C_BASE_PIOB->PIO_PDSR & PB_23_ANT_MRDY) 
+#define NRF_MRDY_CLEAR_REG     (AT91C_BASE_PIOB->PIO_CODR = PB_23_ANT_MRDY)     
+#define NRF_MRDY_SET_REG       (AT91C_BASE_PIOB->PIO_SODR = PB_23_ANT_MRDY)
 
-#define ANT_SRDY_CLEAR_REG     (AT91C_BASE_PIOB->PIO_CODR = PB_24_ANT_SRDY)            
-#define ANT_SRDY_SET_REG       (AT91C_BASE_PIOB->PIO_SODR = PB_24_ANT_SRDY)
+#define NRF_SRDY_CLEAR_REG     (AT91C_BASE_PIOB->PIO_CODR = PB_24_ANT_SRDY)            
+#define NRF_SRDY_SET_REG       (AT91C_BASE_PIOB->PIO_SODR = PB_24_ANT_SRDY)
 
-#define ANT_RESET_CLEAR_REG    (AT91C_BASE_PIOB->PIO_CODR = PB_21_ANT_RESET)
-#define ANT_RESET_SET_REG      (AT91C_BASE_PIOB->PIO_SODR = PB_21_ANT_RESET)
+#define NRF_RESET_CLEAR_REG    (AT91C_BASE_PIOB->PIO_CODR = PB_21_ANT_RESET)
+#define NRF_RESET_SET_REG      (AT91C_BASE_PIOB->PIO_SODR = PB_21_ANT_RESET)
 
-#define ANT_PIOA_PINS          (u32)(PA_25_ANT_USPI2_SCK | PA_23_ANT_USPI2_MOSI | PA_22_ANT_USPI2_MISO)
-#define ANT_PIOB_PINS          (u32)(PB_21_ANT_RESET | PB_22_ANT_USPI2_CS | PB_23_ANT_MRDY | PB_24_ANT_SRDY)
-
-#define ANT_DISABLE_BUTTON     (AT91C_BASE_PIOB->PIO_PDSR & PB_00_BUTTON1)
-
-
+#define NRF_PIOA_PINS          (u32)(PA_25_ANT_USPI2_SCK | PA_23_ANT_USPI2_MOSI | PA_22_ANT_USPI2_MISO)
+#define NRF_PIOB_PINS          (u32)(PB_21_ANT_RESET | PB_22_ANT_USPI2_CS | PB_23_ANT_MRDY | PB_24_ANT_SRDY)
 /*! @endcond */
+
 
 /***********************************************************************************************************************
 ##### Communication peripheral board-specific parameters
@@ -839,7 +834,7 @@ ANT USART Setup in SSP
 SPI slave mode to communicate with an ANT device. 
 */
 /* USART Control Register - Page 734 */
-#define ANT_US_CR_INIT (u32)0x00000050
+#define NRF_US_CR_INIT (u32)0x00000050
 /*
     31 - 20 [0] Reserved
 
@@ -870,7 +865,7 @@ SPI slave mode to communicate with an ANT device.
 */
 
 /* USART Mode Register - page 737 */
-#define ANT_US_MR_INIT (u32)0x004118FF
+#define NRF_US_MR_INIT (u32)0x004118FF
 /*
     31 [0] ONEBIT start frame delimiter is COMMAND or DATA SYNC
     30 [0] MODSYNC Manchester start bit N/A
@@ -915,7 +910,7 @@ SPI slave mode to communicate with an ANT device.
 
 
 /* USART Interrupt Enable Register - Page 741 */
-#define ANT_US_IER_INIT (u32)0x00080000
+#define NRF_US_IER_INIT (u32)0x00080000
 /*
     31 [0] Reserved
     30 [0] "
@@ -959,14 +954,14 @@ SPI slave mode to communicate with an ANT device.
 */
 
 /* USART Interrupt Disable Register - Page 743 */
-#define ANT_US_IDR_INIT (u32)~ANT_US_IER_INIT
+#define NRF_US_IDR_INIT (u32)~NRF_US_IER_INIT
 
 /* USART Baud Rate Generator Register - Page 752
 !!!!! Not applicable for slave (note that incoming clock cannot 
 exceed MCLK/6 = 8MHz.  To date, ANT devices communicate at 500kHz
 or 2MHz, so no issues.
 */
-#define ANT_US_BRGR_INIT (u32)0x00000000  
+#define NRF_US_BRGR_INIT (u32)0x00000000  
 
 
 /*----------------------------------------------------------------------------------------------------------------------

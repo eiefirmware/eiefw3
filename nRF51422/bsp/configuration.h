@@ -71,6 +71,7 @@ Includes
 
 /* Driver header files */
 #include "leds_eief1_nrf51.h" 
+#include "spi_master_eie.h"
 
 /* Application header files */
 #include "anttt.h"

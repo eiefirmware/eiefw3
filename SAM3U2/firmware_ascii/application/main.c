@@ -67,6 +67,7 @@ void main(void)
   SdCardInitialize();
 
   /* Application initialization */
+  nrfInterfaceInitialize();
   UserApp1Initialize();
   UserApp2Initialize();
   UserApp3Initialize();
@@ -96,15 +97,14 @@ void main(void)
     SdCardRunActiveState();
 
     /* Applications */
+    nrfInterfaceRunActiveState();
     UserApp1RunActiveState();
     UserApp2RunActiveState();
     UserApp3RunActiveState();
     
-    HEARTBEAT_OFF();
-
     /* System sleep until next Systick */
+    HEARTBEAT_OFF();
     SystemSleep();
-
     HEARTBEAT_ON();
     
   } /* end while(1) main super loop */
