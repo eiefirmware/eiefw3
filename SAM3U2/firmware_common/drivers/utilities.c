@@ -33,10 +33,10 @@ Global variable definitions with scope across entire project.
 All Global variable names shall start with "G_<type>Util"
 ***********************************************************************************************************************/
 /* New variables */
-const u8 G_au8UtilMessageOK[]   = MESSAGE_OK;            /*!< @brief Common "OK" message */
-const u8 G_au8UtilMessageFAIL[] = MESSAGE_FAIL;          /*!< @brief Common "FAIL" message */
-const u8 G_au8UtilMessageON[]   = MESSAGE_ON;            /*!< @brief Common "ON" message */
-const u8 G_au8UtilMessageOFF[]  = MESSAGE_OFF;           /*!< @brief Common "OFF" message */
+u8 G_au8UtilMessageOK[]   = MESSAGE_OK;          /*!< @brief Common "OK" message */
+u8 G_au8UtilMessageFAIL[] = MESSAGE_FAIL;        /*!< @brief Common "FAIL" message */
+u8 G_au8UtilMessageON[]   = MESSAGE_ON;          /*!< @brief Common "ON" message */
+u8 G_au8UtilMessageOFF[]  = MESSAGE_OFF;         /*!< @brief Common "OFF" message */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/

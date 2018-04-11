@@ -61,7 +61,7 @@ Global variable definitions with scope across entire project.
 All Global variable names shall start with "G_<type>nrfInterface"
 ***********************************************************************************************************************/
 /* New variables */
-volatile u32 G_u32nrfInterfaceFlags;                          /*!< @brief Global state flags */
+volatile u32 G_u32nrfInterfaceFlags;                      /*!< @brief Global state flags */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -71,13 +71,20 @@ extern volatile u32 G_u32SystemTime1s;                    /*!< @brief From main.
 extern volatile u32 G_u32SystemFlags;                     /*!< @brief From main.c */
 extern volatile u32 G_u32ApplicationFlags;                /*!< @brief From main.c */
 
+extern volatile u32 NRF_SSP_FLAGS;                        /* From configuration.h */
+
+extern u8 G_au8UtilMessageOK[];                           /*!< @brief From utilities.c */
+extern u8 G_au8UtilMessageFAIL[];                         /*!< @brief From utilities.c */
+extern u8 G_au8UtilMessageON[];                           /*!< @brief From utilities.c */
+extern u8 G_au8UtilMessageOFF[];                          /*!< @brief From utilities.c */
+
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
 Variable names shall start with "nrfInterface_<type>" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type nrfInterface_pfStateMachine;               /*!< @brief The state machine function pointer */
-//static u32 nrfInterface_u32Timeout;                           /*!< @brief Timeout counter used across states */
+static u32 nrfInterface_u32Timeout;                           /*!< @brief Timeout counter used across states */
 static u32 nrfInterface_u32Flags;
 
 static SspConfigurationType nrfInterface_sSspConfig;          /* Configuration information for SSP peripheral */
@@ -85,11 +92,13 @@ static SspPeripheralType* nrfInterface_Ssp;                   /* Pointer to SSP 
 
 static u8  nrfInterface_au8RxBuffer[U8_NRF_BUFFER_SIZE];      /* Space for verified received ANT messages */
 static u8* nrfInterface_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the AntRxBuffer */
-static u8* nrfInterface_pu8RxBufferCurrentChar;               /* Pointer to the current char in the AntRxBuffer */
-static u8* nrfInterface_pu8RxBufferUnreadMsg;                 /* Pointer to unread chars in the AntRxBuffer */
 
-static u8 nrfInterface_u8RxBytes;                           /* Unread chars in the AntRxBuffer */
+static u8 nrfInterface_u8RxBytes;                             /* Bytes received in current transfer */
+static u8 nrfInterface_u8TxBytes;                             /* Bytes sent in current transfer */
 
+static u8 nrfInterface_au8Message[U8_NRF_BUFFER_SIZE];        /* Latest received message */
+
+static u8 nrfInterface_au8TestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
 
 /**********************************************************************************************************************
 Function Definitions
@@ -98,6 +107,86 @@ Function Definitions
 /*--------------------------------------------------------------------------------------------------------------------*/
 /*! @publicsection */                                                                                            
 /*--------------------------------------------------------------------------------------------------------------------*/
+
+/*!--------------------------------------------------------------------------------------------------------------------
+@fn u8 nrfNewMessageCheck(void)
+
+@brief Determines if a new message is available from the nRF Interface.
+
+The function returns the command number of the message in memory so the
+client can determine if the command belongs to it.  The assumption is that 
+more than one task would not be interested in the same message as a different 
+task.
+
+Requires:
+- nrfInterface_u32Flags _NEW_APP_MESSAGE is set it a new message is available
+
+Promises:
+- Returns the command number of the message
+
+*/
+u8 nrfNewMessageCheck(void)
+{
+  /* Return the command number if the new message flag is set */
+  if(nrfInterface_u32Flags & _NEW_APP_MESSAGE)
+  {
+    return nrfInterface_au8Message[NRF_COMMAND_INDEX];
+  }
+  
+  /* Otherwise return no command */
+  return NRF_CMD_EMPTY;
+  
+} /* end nrfNewMessageCheck() */
+
+
+/*!--------------------------------------------------------------------------------------------------------------------
+@fn void nrfGetAppMessage(u8* pu8AppBuffer_);
+@brief Transfer the current message to task.
+
+The assumption is that the task has confirmed the message number and has
+an appropriately sized buffer waiting.
+
+Requires:
+@PARAM pu8AppBuffer_ is a buffer in the task with enough space for the message
+
+Promises:
+- Copies all valid message bytes from nrfInterface_au8Message to pu8AppBuffer_
+- _NEW_APP_MESSAGE is cleared
+
+*/
+void nrfGetAppMessage(u8* pu8AppBuffer_)
+{
+  memcpy(pu8AppBuffer_, (const u8*)nrfInterface_au8Message, 
+         (nrfInterface_au8Message[NRF_LENGTH_INDEX] + NRF_OVERHEAD_BYTES) );
+  
+  nrfInterface_u32Flags &= ~_NEW_APP_MESSAGE;
+  
+} /* end nrfGetAppMessage() */
+
+
+/*!--------------------------------------------------------------------------------------------------------------------
+@fn u32 nrfQueueMessage(u8* pu8AppMessage_)
+@brief Queues a message from a task to the nRF processor
+
+Requires:
+@PARAM pu8AppMessage_ is a correctly formatted message to the 51422
+
+Promises:
+- Adds the message to the transmit queue.
+- Returns the message token.
+
+*/
+u32 nrfQueueMessage(u8* pu8AppMessage_)
+{
+  u32 u32Token;
+  
+  u8 u8Length = *(pu8AppMessage_ + NRF_LENGTH_INDEX) + NRF_OVERHEAD_BYTES;
+  u32Token = SspWriteData(nrfInterface_Ssp, u8Length, pu8AppMessage_);
+
+  return u32Token;
+  
+} /* end nrfQueueMessage() */
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /*! @protectedsection */                                                                                            
@@ -124,14 +213,13 @@ void nrfInterfaceInitialize(void)
   DebugPrintf("Starting nRF Interface...");
 
   /* Initialize buffer pointers */  
-  nrfInterface_pu8AntRxBufferNextChar    = nrfInterface_au8RxBuffer;
-  nrfInterface_pu8AntRxBufferCurrentChar = nrfInterface_au8RxBuffer;
-  nrfInterface_pu8AntRxBufferUnreadMsg   = nrfInterface_au8RxBuffer;
-  nrfInterface_u8AntNewRxMessages = 0;
+  nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
+  nrfInterface_u8RxBytes = 0;
+  nrfInterface_u8TxBytes = 0;
  
-  /* Reset the 51422 and initialize SRDY and MRDY */
-  SYNC_MRDY_DEASSERT();
-  SYNC_SRDY_DEASSERT();
+  /* Initialize SRDY and MRDY */
+  NRF_MRDY_DEASSERT();
+  NRF_SRDY_DEASSERT();
 
   /* Configure the SSP resource to be used for the application */
   nrfInterface_sSspConfig.SspPeripheral      = NRF_SPI;
@@ -141,9 +229,9 @@ void nrfInterfaceInitialize(void)
   nrfInterface_sSspConfig.eSspMode           = SPI_SLAVE_FLOW_CONTROL;
   nrfInterface_sSspConfig.fnSlaveTxFlowCallback = nrfTxFlowControlCallback;
   nrfInterface_sSspConfig.fnSlaveRxFlowCallback = nrfRxFlowControlCallback;
-  nrfInterface_sSspConfig.pu8RxBufferAddress = Ant_au8AntRxBuffer;
+  nrfInterface_sSspConfig.pu8RxBufferAddress = nrfInterface_au8RxBuffer;
   nrfInterface_sSspConfig.ppu8RxNextByte     = &nrfInterface_pu8RxBufferNextChar;
-  nrfInterface_sSspConfig.u16RxBufferSize    = ANT_RX_BUFFER_SIZE;
+  nrfInterface_sSspConfig.u16RxBufferSize    = U8_NRF_BUFFER_SIZE;
 
   nrfInterface_Ssp = SspRequest(&nrfInterface_sSspConfig);
   NRF_SSP_FLAGS = 0;
@@ -152,13 +240,13 @@ void nrfInterfaceInitialize(void)
   if(nrfInterface_Ssp != NULL)  
   {
     DebugPrintf(G_au8UtilMessageOK);
-    nrfInterface_pfStateMachine = nrfSM_Idle;
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
   else
   {
     /* SSP failed, so cannot communicate */
     DebugPrintf(G_au8UtilMessageFAIL);
-    nrfInterface_pfStateMachine = nrfSM_Error;
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Error;
   }
 
 } /* end nrfInterfaceInitialize() */
@@ -199,13 +287,23 @@ Promises:
 -
 
 */
-
 void nrfTxFlowControlCallback(void)
 {
-  /* Indicate the task is ready for data to be sent */
-  NRF_SRDY_ASSERT();
-  
-  
+  /* If this is the first call (from SSP Idle), then MRDY needs to be asserted.
+  The nRF should respond by asserting CS, which will then trigger the nRF Idle
+  state to move on to Tx (when it sees MRDY asserted) */
+  if( nrfInterface_u8TxBytes == 0 )
+  {
+    NRF_MRDY_ASSERT();
+  }
+  /* Otherwise a byte was just sent, so increment the byte counter and make
+  sure SRDY is DEASSERTED */
+  else
+  {
+    NRF_SRDY_DEASSERT();
+    nrfInterface_u8TxBytes++;
+  }
+ 
 } /* end nrfTxFlowControlCallback() */
 
 
@@ -223,13 +321,22 @@ Requires:
 - A received byte was just written to the Rx buffer
 
 Promises:
-- nrfInterface_pu8RxBufferNextChar is advanced safely so it is ready to receive the next byte
+- nrfInterface_pu8RxBufferNextChar is advanced safely so it is ready to 
+receive the next byte.  The buffer is not supposed to be circular so
+_SSP_RX_OVERFLOW is flagged.  Wrap the pointer back, anyway.
 */
 void nrfRxFlowControlCallback(void)
 {
+  /* Count the byte and move the pointer */
+  nrfInterface_u8RxBytes++;
+  
   nrfInterface_pu8RxBufferNextChar++;
-  
-  
+  if(nrfInterface_pu8RxBufferNextChar == &nrfInterface_au8RxBuffer[U8_NRF_BUFFER_SIZE])
+  {
+    NRF_SSP_FLAGS |= _SSP_RX_OVERFLOW;
+    nrfInterface_pu8RxBufferNextChar = &nrfInterface_au8RxBuffer[0];
+  }
+    
 } /* end nrfRxFlowControlCallback() */
 
 
@@ -249,10 +356,15 @@ static void nrfInterfaceSM_Idle(void)
   /* If the CS flag gets asserted, the NRF is ready to clock the system */
   if( IS_CS_ASSERTED() )
   {
-    /* MRDY is also asserted, then we are transmitting */
-    if (IS_MRDY_ASSERTED)
+    /* Note the start time for timeout checking */
+    nrfInterface_u32Timeout = G_u32SystemTime1ms;
+ 
+    /* If MRDY is asserted, then we are transmitting */
+    if( IS_MRDY_ASSERTED() )
     {
-      /* MRDY can be cleared since the transaction is now in progress. */
+      /* Ready to go, so assert SRDY. 
+      MRDY can be cleared since the transaction is now in progress. */
+      NRF_SRDY_ASSERT();
       NRF_MRDY_DEASSERT();
       nrfInterface_pfStateMachine = nrfInterfaceSM_Tx;
     }
@@ -260,11 +372,11 @@ static void nrfInterfaceSM_Idle(void)
     else
     {
       /* Set flag and advance to Rx wait state */
+      nrfInterface_u8RxBytes = 0;
       NRF_SRDY_ASSERT();
       nrfInterface_pfStateMachine = nrfInterfaceSM_Rx;
     }
-  }
-  
+  } 
   
 } /* end nrfInterfaceSM_Idle() */
      
@@ -273,27 +385,109 @@ static void nrfInterfaceSM_Idle(void)
 /* Receive a message from the nRF Interface.  This state holds
 until the message is completely received and the message is 
 processed immediately. Message transmission is complete when the 
-Master releases CS.
+Master deasserts CS. Note that for short messages this will occur prior
+to entering this state.
 */
-static void nrfInterfaceSM_Rx(void)          
+static void nrfInterfaceSM_Rx(void)
 {
   u8 u8Length;
-  
+    
   /* Watch for CS to deassert */
   if( !IS_CS_ASSERTED() )
   {
     /* The message is complete.  Parse it out to determine what happens. */
     if(nrfInterface_au8RxBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE)
     {
-      u8Length = nrfInterface_au8RxBuffer[NRF_LENGTH_INDEX];
-    }
+      /* SYNC is verified, so check if this is a board command or 
+      application message */
+      if(nrfInterface_au8RxBuffer[NRF_COMMAND_INDEX] >= NRF_APP_MESSAGE_START)
+      {
+        /* An application message is posted to G_au8nrfInterfaceMessage */ 
+        u8Length = nrfInterface_au8RxBuffer[NRF_LENGTH_INDEX];
+        u8Length += NRF_OVERHEAD_BYTES;
+        memcpy(nrfInterface_au8Message, (const u8*)nrfInterface_au8RxBuffer, u8Length);
+        nrfInterface_u32Flags |= _NEW_APP_MESSAGE;
+      } /* end APP message */
+      else
+      {
+        /* Board commands */
+        switch (nrfInterface_au8RxBuffer[NRF_COMMAND_INDEX])
+        {
+          case NRF_CMD_LED:
+          {
+            if(nrfInterface_au8RxBuffer[NRF_CMD_ARG2_INDEX])
+            {
+              LedOn((LedNumberType)nrfInterface_au8RxBuffer[NRF_CMD_ARG1_INDEX]);
+            }
+            else
+            {
+              LedOff((LedNumberType)nrfInterface_au8RxBuffer[NRF_CMD_ARG1_INDEX]);
+            }
+            break;
+          }
+
+          case NRF_CMD_TEST:
+          {
+            /* If a test message is received, send response back */
+            nrfQueueMessage(nrfInterface_au8TestResponse);
+            break;
+          }
+  
+          default:
+          {
+            DebugPrintf("\n\rUnhandled nRF Command\n\r");
+            break;
+          }
+          
+        } /* end switch */
+      } /* end board command */
+    } /* end good SYNC byte */
+
+    /* In all cases, reset the buffer pointer and counters */
+    nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
+    nrfInterface_u8RxBytes = 0;
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
+    
+  } /* end !CS_ASSERTED */
+
+  /* Watch for timeout */
+  if( IsTimeUp(&nrfInterface_u32Timeout, U32_TRX_TIMEOUT_MS) )
+  {
+    nrfInterface_u32Flags |= _RX_TIMEOUT;
+    DebugPrintf("nRF Rx timeout\n\r");
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
   
-  /* In all cases, reset the buffer pointers */
-  
-} /* end nrfInterfaceSM_Error() */
+} /* end nrfInterfaceSM_Rx() */
                 
-                
+ 
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Transmit a message through the nRF Interface.  This state holds
+until the message transmission is complete and the 
+Master deasserts CS based on the length byte provided in the message.
+Note that for short messages this will occur prior to entering this state.
+*/
+static void nrfInterfaceSM_Tx(void)   
+{
+  /* Watch for CS to deassert */
+  if( !IS_CS_ASSERTED() )
+  {
+    nrfInterface_u8TxBytes = 0;
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
+  } /* end !CS_ASSERTED */
+
+  /* Watch for timeout */
+  if( IsTimeUp(&nrfInterface_u32Timeout, U32_TRX_TIMEOUT_MS) )
+  {
+    nrfInterface_u8TxBytes = 0;
+    nrfInterface_u32Flags |= _TX_TIMEOUT;
+    DebugPrintf("nRF Tx timeout\n\r");
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
+  }
+ 
+} /* end nrfInterfaceSM_Tx() */
+
+
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void nrfInterfaceSM_Error(void)          

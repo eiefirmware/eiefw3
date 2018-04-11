@@ -93,7 +93,7 @@ void main(void)
     SocIntegrationHandler();
     AntttRunActiveState();
     LedUpdate();
-   
+    
     /* System sleep*/
     SystemSleep();
     

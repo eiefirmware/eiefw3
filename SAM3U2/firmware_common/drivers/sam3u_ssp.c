@@ -420,7 +420,7 @@ u32 SspWriteData(SspPeripheralType* psSspPeripheral_, u32 u32Size_, u8* pu8Data_
   u32 u32Token;
 
   u32Token = QueueMessage(&psSspPeripheral_->psTransmitBuffer, u32Size_, pu8Data_);
-  if( u32Token == 0 )
+  if( u32Token == NULL )
   {
     return(0);
   }
