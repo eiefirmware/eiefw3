@@ -230,7 +230,16 @@
       </file>
     </group>
     <file>
+      <name>$PROJ_DIR$\Debug\Exe\anttt-SD3-SDK6_1.hex</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\exec.mac</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\bsp\nRF51422_QFAA.icf</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\softdevice\s310_nrf51422_1.0.0_softdevice.hex</name>
     </file>
   </group>
   <group>

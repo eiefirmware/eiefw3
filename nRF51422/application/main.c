@@ -67,7 +67,7 @@ void main(void)
   GpioSetup();
   ClockSetup();
   InterruptSetup();
-  PowerSetup();
+  //PowerSetup();
   SysTickSetup();
     
   /* Driver initialization */
