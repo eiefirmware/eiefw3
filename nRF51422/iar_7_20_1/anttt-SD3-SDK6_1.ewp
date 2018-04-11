@@ -1958,6 +1958,9 @@
       </file>
     </group>
     <file>
+      <name>$PROJ_DIR$\..\exec.mac</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\bsp\nRF51422_QFAA.icf</name>
     </file>
   </group>

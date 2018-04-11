@@ -3,9 +3,10 @@
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 /*-Specials-*/
 /*-Memory Regions-*/
-/* This line should be added to Debugger > Extra-Options:   --drv_vector_table_base=0x0 */
+/* This line should be added to Debugger > Extra-Options: --drv_vector_table_base=0x0 */
 
 /* Softdevice S310 1.0 (51422 rev. DA and E0) */
+/* Requires exec.mac in Debugger > Setup > Setup macro */
 define symbol __ICFEDIT_intvec_start__     = 0x00020000;
 define symbol __ICFEDIT_region_ROM_start__ = 0x000200C0;
 define symbol __ICFEDIT_region_ROM_end__   = 0x0003FFFF;
