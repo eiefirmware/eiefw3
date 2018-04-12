@@ -18,7 +18,9 @@ Constants / Definitions
 
 #define ANTTT_COMMAND_ID_MOVE           (u8)0xCC
 #define ANTTT_COMMAND_ID_MOVE_RESP      (u8)0xAC   
+/* end ANTTT Communication Protocol */
 
+#define U32_ANTTT_SPI_CHECK_PERIOD_MS   (u32)1000
 
 
 /**********************************************************************************************************************

@@ -181,6 +181,9 @@
         <name>$PROJ_DIR$\..\..\firmware_common\bsp\configuration.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\bsp\eief1-pcb-01.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\bsp\sam3u2-flash.icf</name>
       </file>
       <file>

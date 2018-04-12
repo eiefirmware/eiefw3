@@ -28,6 +28,7 @@ Global variable definitions with scope limited to this local application.
 Variable names shall start with "Anttt_<type>" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type Anttt_pfnStateMachine;              /* The application state machine function pointer */
+static u32 Anttt_u32Timeout;                           /* Timeout counter used across states */
 
 static u8 Anttt_au8SpiReceiveBuffer[U8_SPI0_BUFFER_SIZE];
 
@@ -59,27 +60,38 @@ void AntttInitialize(void)
 {
   u8 au8SpiTestMessage[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_LENGTH, NRF_CMD_TEST};
   u8 u8ReceivedBytes;
+  u32 u32Result = 0;
   
   /* Send a test message via SPI to check connection to SAM3U2 */
   LedOn(RED);
-  SpiMasterSend(au8SpiTestMessage, sizeof(au8SpiTestMessage) );
+  u32Result = SpiMasterSend(au8SpiTestMessage, sizeof(au8SpiTestMessage) );
   
-  /* Wait for response */
-  for(u32 i = 0; i < 10000; i++);
-  if(NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED])
+  if(u32Result == NRF_SUCCESS)
   {
-    /* Clear the MRDY event and receive bytes */
-    NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED] = 0;
-    u8ReceivedBytes = SpiMasterReceive(Anttt_au8SpiReceiveBuffer);
+    /* Wait for response */
+    Anttt_u32Timeout = G_u32SystemTime1ms;
+    while( (!NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED]) &&
+           (!IsTimeUp(&Anttt_u32Timeout, U32_MRDY_TIMEOUT_MS) ) );
     
-    /* Check if the received message is the expected test response */
-    if( (Anttt_au8SpiReceiveBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE) &&
-        (Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] == NRF_CMD_TEST_RESPONSE))
+    if(NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED])
     {
-      LedOff(RED);
+      /* Clear the MRDY event and receive bytes */
+      NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED] = 0;
+      u8ReceivedBytes = SpiMasterReceive(Anttt_au8SpiReceiveBuffer);
+      
+      /* Check if the received message is the expected test response */
+      if( (Anttt_au8SpiReceiveBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE) &&
+          (Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] == NRF_CMD_TEST_RESPONSE))
+      {
+        LedOff(RED);
+      }
+    }
+    else
+    {
+      LedBlink(RED, LED_4HZ);
     }
   }
-
+  
   /* Activate blinking blue LED to indicate BLE is searching */
   LedBlink(BLUE, LED_4HZ);  
   
@@ -124,13 +136,21 @@ or over SPI. This first command must be a GAME_REQUEST.
 */
 static void AntttSM_Idle(void)
 {
-  // Check if module is connected to client.
+  /* Check if module is connected to client */
   if (G_u32BPEngenuicsFlags == _BPENGENUICS_CONNECTED)
   {
-    // Set LEDs and proceed to wait state.
-    LedOn(BLUE);   // Connected to Client.
-       
+    /* Set LEDs and proceed to wait state */
+    LedOn(BLUE); 
+    
+    /* Look for a BLE game request */
   }
+  
+  /* Read any SPI messages */
+  if( 
+  {
+    
+  }
+ 
  
 } 
 

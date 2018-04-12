@@ -60,20 +60,22 @@ u32 SpiMasterSend(u8* pu8TxBuffer_, u8 u8Length_)
   /* Assert CS and wait for SRDY to drop */
   SpiMaster_u32Timeout = G_u32SystemTime1ms;
   ASSERT_SPI0_CS;
-  while( (!NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED]) ||
-          (IsTimeUp(&SpiMaster_u32Timeout, U32_SRDY_TIMEOUT_MS) ) );
+  while( (!NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED]) &&
+         (!IsTimeUp(&SpiMaster_u32Timeout, U32_SRDY_TIMEOUT_MS) ) );
           
   /* Clear SRDY event and check that MRDY is not also set. */
   NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED] = 0;
   if(NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED])
   {
     /* Exit if MRDY is asserted.  Leave CS asserted and do not clear the event. */
+    LedOn(RED);
     return NRF_ERROR_BUSY;
   }
   
   /* Check for timeout */
   if( IsTimeUp(&SpiMaster_u32Timeout, U32_SRDY_TIMEOUT_MS) )
   {
+    LedOn(RED);
     return NRF_ERROR_TIMEOUT;
   }
    
@@ -91,6 +93,10 @@ u32 SpiMasterSend(u8* pu8TxBuffer_, u8 u8Length_)
     u8Dummy = NRF_SPI0->RXD;
   }
   
+  /* Transmission is complete, so clear CS after a short delay */
+  for(u32 i = 0; i < U32_CS_DEASSERT_DELAY; i++);
+  DEASSERT_SPI0_CS;
+
   return NRF_SUCCESS;
   
 } /* end SpiMasterSend() */
@@ -114,23 +120,16 @@ Promises:
 u8 SpiMasterReceive(u8* pu8RxBuffer_)
 {
   u8 u8ByteCount = 0;
-  u8 u8Length = 2;
+  u8 u8Length = NRF_OVERHEAD_BYTES;
   
   /* Assert CS and wait for SRDY to drop */
   SpiMaster_u32Timeout = G_u32SystemTime1ms;
   ASSERT_SPI0_CS;
-  while( (!NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED]) ||
-          (IsTimeUp(&SpiMaster_u32Timeout, U32_SRDY_TIMEOUT_MS) ) );
+  while( (!NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED]) &&
+         (!IsTimeUp(&SpiMaster_u32Timeout, U32_SRDY_TIMEOUT_MS) ) );
           
-  /* Clear SRDY event and check that MRDY is not also set. */
+  /* Clear SRDY event and check for timeout */
   NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED] = 0;
-  if(NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED])
-  {
-    /* Exit if MRDY is asserted.  Leave CS asserted and do not clear the event. */
-    return NRF_ERROR_BUSY;
-  }
-  
-  /* Check for timeout */
   if( IsTimeUp(&SpiMaster_u32Timeout, U32_SRDY_TIMEOUT_MS) )
   {
     return NRF_ERROR_TIMEOUT;
@@ -158,6 +157,10 @@ u8 SpiMasterReceive(u8* pu8RxBuffer_)
     u8ByteCount++;
   }
     
+  /* Reception is complete, so clear CS */
+  for(u32 i = 0; i < U32_CS_DEASSERT_DELAY; i++);
+  DEASSERT_SPI0_CS;
+
   return u8ByteCount;
   
 } /* end SpiMasterReceive() */
@@ -180,38 +183,38 @@ Promises:
 */
 void SpiMasterInitialize(void)
 {  
-  /* Set up SPI-specific GPIO */
-  NRF_GPIO->PIN_CNF[ANT_USPI2_MOSI_BIT] = P0_13_ANT_USPI2_MOSI_CNF;
-  NRF_GPIO->PIN_CNF[ANT_USPI2_MISO_BIT] = P0_12_ANT_USPI2_MISO_CNF;
-  NRF_GPIO->PIN_CNF[ANT_USPI2_SCK_BIT]  = P0_11_ANT_USPI2_SCK_CNF;
-  NRF_GPIO->PIN_CNF[ANT_SEN_BIT]      = P0_10_ANT_USPI2_CS_CNF;
-  NRF_GPIO->PIN_CNF[ANT_SRDY_BIT]     = P0_09_ANT_SRDY_CNF;
-  NRF_GPIO->PIN_CNF[ANT_MRDY_BIT]     = P0_08_ANT_MRDY_CNF;
-  
-  /* Set pin outputs per user guide */
+  /* Set pin outputs per user guide and for desired start states when
+  the pins are changed to output */
+  DEASSERT_SPI0_CS;
   NRF_GPIO->OUTSET = P0_11_ANT_USPI2_SCK;
   NRF_GPIO->OUTCLR = P0_13_ANT_USPI2_MOSI;
 
-  /* Configure SPI hardware */
-  NRF_SPI0->PSELMOSI = ANT_USPI2_MOSI_BIT;
-  NRF_SPI0->PSELMISO = ANT_USPI2_MISO_BIT;  
-  NRF_SPI0->PSELSCK  = ANT_USPI2_SCK_BIT;
+  /* Now set up the pin configurations */
+  NRF_GPIO->PIN_CNF[ANT_USPI2_MOSI_BIT_NUMBER] = P0_13_ANT_USPI2_MOSI_CNF;
+  NRF_GPIO->PIN_CNF[ANT_USPI2_MISO_BIT_NUMBER] = P0_12_ANT_USPI2_MISO_CNF;
+  NRF_GPIO->PIN_CNF[ANT_USPI2_SCK_BIT_NUMBER]  = P0_11_ANT_USPI2_SCK_CNF;
+  NRF_GPIO->PIN_CNF[ANT_SEN_BIT_NUMBER]        = P0_10_ANT_USPI2_CS_CNF;
+  NRF_GPIO->PIN_CNF[ANT_SRDY_BIT_NUMBER]       = P0_09_ANT_SRDY_CNF;
+  NRF_GPIO->PIN_CNF[ANT_MRDY_BIT_NUMBER]       = P0_08_ANT_MRDY_CNF;
+  
+  /* Configure SPI periperal */
+  NRF_SPI0->PSELMOSI  = ANT_USPI2_MOSI_BIT_NUMBER;
+  NRF_SPI0->PSELMISO  = ANT_USPI2_MISO_BIT_NUMBER;  
+  NRF_SPI0->PSELSCK   = ANT_USPI2_SCK_BIT_NUMBER;
+  NRF_SPI0->FREQUENCY = SPI_FREQUENCY_FREQUENCY_M1 << SPI_FREQUENCY_FREQUENCY_Pos;
+  NRF_SPI0->CONFIG    = SPI0_CONFIG_CNF;
   
   /* Set up events on the SRDY and MRDY flow control input pins */
-  NRF_GPIOTE->CONFIG[EVENT_SRDY_ASSERTED] = P0_09_ANT_SRDY_CNF;
-  NRF_GPIOTE->CONFIG[EVENT_MRDY_ASSERTED] = P0_08_ANT_MRDY_CNF;
+  NRF_GPIOTE->CONFIG[EVENT_SRDY_ASSERTED] = GPIOTE_CONFIG_P0_09_ANT_SRDY_CNF;
+  NRF_GPIOTE->CONFIG[EVENT_MRDY_ASSERTED] = GPIOTE_CONFIG_P0_08_ANT_MRDY_CNF;
+
+  /* Initialize pending events and enable the peripheral */
   NRF_GPIOTE->EVENTS_IN[EVENT_SRDY_ASSERTED] = 0;
   NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED] = 0;
-  
-  /* Clear waiting interrupts and events */
   NRF_SPI0->EVENTS_READY = 0;
+  NRF_SPI0->ENABLE = 1;
 
-  /* Set up SPI Master peripheral */
-  NRF_SPI0->FREQUENCY = SPI_FREQUENCY_FREQUENCY_M1 << SPI_FREQUENCY_FREQUENCY_Pos;
-  NRF_SPI0->CONFIG    = (SPI_CONFIG_ORDER_LsbFirst << SPI_CONFIG_ORDER_Pos | \
-                         SPI_CONFIG_CPHA_Leading   << SPI_CONFIG_CPHA_Pos  | \
-                         SPI_CONFIG_CPOL_ActiveLow << SPI_CONFIG_CPOL_Pos );
-  
+#if 0 /* For now, let this be event-driven */
   /* Configure Interrupts */
 #ifdef SOFTDEVICE_ENABLED  
   u32 u32Result;
@@ -223,16 +226,15 @@ void SpiMasterInitialize(void)
 #else
 
 #ifdef INTERRUPTS_ENABLED
-  /* Enable the RTC interrupt */
+  /* Enable the SPI interrupt */
   NVIC_SetPriority(SPI0_TWI0_IRQn, NRF_APP_PRIORITY_LOW);
   NVIC_EnableIRQ(SPI0_TWI0_IRQn);
 #endif /* INTERRUPTS_ENABLED */
   
 #endif /* SOFTDEVICE_ENABLED */
 
+#endif
     
-  /* Test operation */
-
 } /* end SpiMasterInitialize() */
 
 

@@ -138,6 +138,7 @@ static u32 SSP_u32Int1Count = 0;                 /* Debug counter for SSP1 inter
 static u32 SSP_u32Int2Count = 0;                 /* Debug counter for SSP2 interrupts */
 static u32 SSP_u32AntCounter = 0;                /* Debug counter */
 static u32 SSP_u32RxCounter = 0;                 /* Debug counter */
+static u32 SSP_u32CsCounter = 0;
 
 
 /***********************************************************************************************************************
@@ -772,7 +773,7 @@ void SspGenericHandler(void)
 {
   u32 u32Byte;
   u32 u32Timeout;
-  u32 u32Current_CSR;
+  u32 u32Current_CSR; 
   
   /* Get a copy of CSR because reading it changes it */
   u32Current_CSR = SSP_psCurrentISR->pBaseAddress->US_CSR;
@@ -781,6 +782,8 @@ void SspGenericHandler(void)
   if( (SSP_psCurrentISR->pBaseAddress->US_IMR & AT91C_US_CTSIC) && 
       (u32Current_CSR & AT91C_US_CTSIC) )
   {
+    SSP_u32CsCounter++;
+    
     /* Is the CS pin asserted now? */
     if( (SSP_psCurrentISR->pCsGpioAddress->PIO_PDSR & SSP_psCurrentISR->u32CsPin) == 0)
     {

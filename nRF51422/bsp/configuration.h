@@ -14,7 +14,7 @@ to match the target hardware.
 Runtime Switches
 ***********************************************************************************************************************/
 //#define SOFTDEVICE_ENABLED  
-//#define INTERRUPTS_ENABLED  
+#define INTERRUPTS_ENABLED  
 
 /**********************************************************************************************************************
 Type Definitions

@@ -86,6 +86,7 @@ Variable names shall start with "nrfInterface_<type>" and be declared as static.
 static fnCode_type nrfInterface_pfStateMachine;               /*!< @brief The state machine function pointer */
 static u32 nrfInterface_u32Timeout;                           /*!< @brief Timeout counter used across states */
 static u32 nrfInterface_u32Flags;
+static u32 nrfInterface_u32MsgToken;
 
 static SspConfigurationType nrfInterface_sSspConfig;          /* Configuration information for SSP peripheral */
 static SspPeripheralType* nrfInterface_Ssp;                   /* Pointer to SSP peripheral object */
@@ -99,6 +100,7 @@ static u8 nrfInterface_u8TxBytes;                             /* Bytes sent in c
 static u8 nrfInterface_au8Message[U8_NRF_BUFFER_SIZE];        /* Latest received message */
 
 static u8 nrfInterface_au8TestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
+
 
 /**********************************************************************************************************************
 Function Definitions
@@ -179,8 +181,9 @@ Promises:
 u32 nrfQueueMessage(u8* pu8AppMessage_)
 {
   u32 u32Token;
+  u8 u8Length;
   
-  u8 u8Length = *(pu8AppMessage_ + NRF_LENGTH_INDEX) + NRF_OVERHEAD_BYTES;
+  u8Length = *(pu8AppMessage_ + NRF_LENGTH_INDEX) + NRF_OVERHEAD_BYTES;
   u32Token = SspWriteData(nrfInterface_Ssp, u8Length, pu8AppMessage_);
 
   return u32Token;
@@ -209,9 +212,16 @@ Promises:
 */
 void nrfInterfaceInitialize(void)
 {
+  /* Put the nRF51422 in reset. If the nRF51422 was debugging, this will
+  disconnect the debugger but NOT reset the processor because the processor
+  will be in debug mode.  The EIE board will have to be power cycled to return
+  to normal reset operation. */
+  AT91C_BASE_PIOB->PIO_CODR = PB_21_ANT_RESET;
+  AT91C_BASE_PIOB->PIO_OER  = PB_21_ANT_RESET;
+
   /* Announce on the debug port that nrfInterface setup is starting and intialize pointers */
   DebugPrintf("Starting nRF Interface...");
-
+  
   /* Initialize buffer pointers */  
   nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
   nrfInterface_u8RxBytes = 0;
@@ -235,6 +245,9 @@ void nrfInterfaceInitialize(void)
 
   nrfInterface_Ssp = SspRequest(&nrfInterface_sSspConfig);
   NRF_SSP_FLAGS = 0;
+  
+  /* Release the nRF51422 reset by returning the pin to an input */
+  AT91C_BASE_PIOB->PIO_ODR = PB_21_ANT_RESET;
   
   /* Report status out the debug port */
   if(nrfInterface_Ssp != NULL)  
@@ -289,6 +302,7 @@ Promises:
 */
 void nrfTxFlowControlCallback(void)
 {
+#if 0
   /* If this is the first call (from SSP Idle), then MRDY needs to be asserted.
   The nRF should respond by asserting CS, which will then trigger the nRF Idle
   state to move on to Tx (when it sees MRDY asserted) */
@@ -303,6 +317,11 @@ void nrfTxFlowControlCallback(void)
     NRF_SRDY_DEASSERT();
     nrfInterface_u8TxBytes++;
   }
+#endif
+
+  NRF_MRDY_ASSERT();
+  NRF_SRDY_DEASSERT();
+  nrfInterface_u8TxBytes++;
  
 } /* end nrfTxFlowControlCallback() */
 
@@ -328,6 +347,7 @@ _SSP_RX_OVERFLOW is flagged.  Wrap the pointer back, anyway.
 void nrfRxFlowControlCallback(void)
 {
   /* Count the byte and move the pointer */
+  NRF_SRDY_DEASSERT();
   nrfInterface_u8RxBytes++;
   
   nrfInterface_pu8RxBufferNextChar++;
@@ -353,6 +373,11 @@ State Machine Function Definitions
 a message to be queued to the nRF Interface */
 static void nrfInterfaceSM_Idle(void)
 {
+  /* Debugging state indication */
+  LedOn(WHITE);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  
   /* If the CS flag gets asserted, the NRF is ready to clock the system */
   if( IS_CS_ASSERTED() )
   {
@@ -362,10 +387,9 @@ static void nrfInterfaceSM_Idle(void)
     /* If MRDY is asserted, then we are transmitting */
     if( IS_MRDY_ASSERTED() )
     {
-      /* Ready to go, so assert SRDY. 
-      MRDY can be cleared since the transaction is now in progress. */
+      /* Ready to go, so assert SRDY. */
+      for(u32 i = 0; i < 100; i++);
       NRF_SRDY_ASSERT();
-      NRF_MRDY_DEASSERT();
       nrfInterface_pfStateMachine = nrfInterfaceSM_Tx;
     }
     /* Otherwise we are receiving */
@@ -373,6 +397,7 @@ static void nrfInterfaceSM_Idle(void)
     {
       /* Set flag and advance to Rx wait state */
       nrfInterface_u8RxBytes = 0;
+      for(u32 i = 0; i < 100; i++);
       NRF_SRDY_ASSERT();
       nrfInterface_pfStateMachine = nrfInterfaceSM_Rx;
     }
@@ -392,6 +417,11 @@ static void nrfInterfaceSM_Rx(void)
 {
   u8 u8Length;
     
+  /* Debugging state indication */
+  LedOff(WHITE);
+  LedOn(PURPLE);
+  LedOff(BLUE);
+
   /* Watch for CS to deassert */
   if( !IS_CS_ASSERTED() )
   {
@@ -429,7 +459,8 @@ static void nrfInterfaceSM_Rx(void)
           case NRF_CMD_TEST:
           {
             /* If a test message is received, send response back */
-            nrfQueueMessage(nrfInterface_au8TestResponse);
+            DebugPrintf("\n\rSPI test message received\n\r");
+            nrfInterface_u32MsgToken = nrfQueueMessage(nrfInterface_au8TestResponse);
             break;
           }
   
@@ -446,17 +477,27 @@ static void nrfInterfaceSM_Rx(void)
     /* In all cases, reset the buffer pointer and counters */
     nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
     nrfInterface_u8RxBytes = 0;
+    NRF_SRDY_DEASSERT();
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
     
   } /* end !CS_ASSERTED */
 
+#if 1
   /* Watch for timeout */
   if( IsTimeUp(&nrfInterface_u32Timeout, U32_TRX_TIMEOUT_MS) )
   {
     nrfInterface_u32Flags |= _RX_TIMEOUT;
     DebugPrintf("nRF Rx timeout\n\r");
+
+    nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
+    nrfInterface_u8RxBytes = 0;
+    nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
+
+    NRF_SRDY_DEASSERT();
+    ACK_CS_ASSERTED();
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
+#endif
   
 } /* end nrfInterfaceSM_Rx() */
                 
@@ -469,22 +510,35 @@ Note that for short messages this will occur prior to entering this state.
 */
 static void nrfInterfaceSM_Tx(void)   
 {
+  /* Debugging state indication */
+  LedOff(WHITE);
+  LedOff(PURPLE);
+  LedOn(BLUE);
+
   /* Watch for CS to deassert */
   if( !IS_CS_ASSERTED() )
   {
+    NRF_MRDY_DEASSERT();
+    NRF_MRDY_DEASSERT();
+    ACK_CS_ASSERTED();
     nrfInterface_u8TxBytes = 0;
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   } /* end !CS_ASSERTED */
 
+#if 1
   /* Watch for timeout */
   if( IsTimeUp(&nrfInterface_u32Timeout, U32_TRX_TIMEOUT_MS) )
   {
     nrfInterface_u8TxBytes = 0;
     nrfInterface_u32Flags |= _TX_TIMEOUT;
+    NRF_SRDY_DEASSERT();
+    NRF_MRDY_DEASSERT();
+    ACK_CS_ASSERTED();
     DebugPrintf("nRF Tx timeout\n\r");
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
- 
+#endif
+  
 } /* end nrfInterfaceSM_Tx() */
 
 

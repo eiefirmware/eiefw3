@@ -352,7 +352,7 @@ void SystemSleep(void)
   AT91C_BASE_PMC->PMC_FSMR &= ~AT91C_PMC_LPM;
   AT91C_BASE_NVIC->NVIC_SCR &= ~AT91C_NVIC_SLEEPDEEP;
    
-  /* Set the sleep flag (cleared only in SysTick ISR */
+  /* Set the sleep flag (cleared only in SysTick ISR) */
   G_u32SystemFlags |= _SYSTEM_SLEEPING;
 
   /* Now enter the selected LPM */

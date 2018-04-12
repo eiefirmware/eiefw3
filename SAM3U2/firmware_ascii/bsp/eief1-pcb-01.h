@@ -795,7 +795,7 @@ Default start-up IO values are held here.
 
     23 [1] PB_23_ANT_MRDY output high
     22 [0] PB_22_ANT_USPI2_CS N/A
-    21 [0] PB_21_ANT_RESET N/A
+    21 [0] PB_21_ANT_RESET cache output low
     20 [1] PB_20_LED_RED output high
 
     19 [1] PB_19_LED_GRN output high
@@ -872,7 +872,7 @@ Initial output values are stored here.
     00 [0] PA_00_TP54 N/A
 */
 
-#define PIOB_CODR_INIT (u32)0x00000000
+#define PIOB_CODR_INIT (u32)0x00200000
 /*
     31 [0] PB_31_
     30 [0] PB_30_
@@ -886,7 +886,7 @@ Initial output values are stored here.
 
     23 [0] PB_23_ANT_MRDY output high
     22 [0] PB_22_ANT_USPI2_CS N/A
-    21 [0] PB_21_ANT_RESET N/A
+    21 [1] PB_21_ANT_RESET cache output low
     20 [0] PB_20_LED_RED output high
 
     19 [0] PB_19_LED_GRN output high

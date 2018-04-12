@@ -879,7 +879,7 @@ SPI slave mode to communicate with an ANT device.
 
     23 [0] INVDATA data is not inverted
     22 [1] VAR_SYNC sync field is updated on char to US_THR
-    21 [0] DSNACK (delicious!) NACK is sent on ISO line immeidately on parity error
+    21 [0] DSNACK (delicious!) NACK is sent on ISO line immiedately on parity error
     20 [0] INACK transmission starts as soon as byte is written to US_THR
 
     19 [0] OVER 16x oversampling
