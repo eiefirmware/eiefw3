@@ -11,13 +11,21 @@ File: anttt.h
 Constants / Definitions
 **********************************************************************************************************************/
 /* ANTTT Communication Protocol */
-#define ANTTT_COMMAND_SIZE              (u8)3
-#define ANTTT_COMMAND_ID_OFFSET         (u8)0x00
-#define ANTTT_COMMAND_POSITION_OFFSET   (u8)0x01
-#define ANTTT_COMMAND_UNUSED_OFFSET     (u8)0x02
+#define ANTTT_COMMAND_SIZE                 (u8)3
+#define ANTTT_COMMAND_ID_OFFSET            (u8)0x00
+#define ANTTT_COMMAND_POSITION_OFFSET      (u8)0x01
+#define ANTTT_COMMAND_UNUSED_OFFSET        (u8)0x02
 
-#define ANTTT_COMMAND_ID_MOVE           (u8)0xCC
-#define ANTTT_COMMAND_ID_MOVE_RESP      (u8)0xAC   
+#define ANTTT_APP_MSG_GAME_REQUEST         (u8)0xA0
+#define ANTTT_APP_MSG_MOVE                 (u8)0xCC
+#define ANTTT_APP_MSG_NACK                 (u8)0xAE   
+#define ANTTT_APP_MSG_ACK                  (u8)0xAF   
+
+#define ANTTT_APP_MESSAGE_ACK_LENGTH       (u8)1   
+#define ANTTT_APP_MESSAGE_NACK_LENGTH      (u8)1   
+#define ANTTT_APP_MSG_GAME_REQUEST_LENGTH  (u8)0xA0
+
+
 /* end ANTTT Communication Protocol */
 
 #define U32_ANTTT_SPI_CHECK_PERIOD_MS   (u32)1000

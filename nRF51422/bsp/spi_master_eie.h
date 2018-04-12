@@ -70,6 +70,7 @@ Constants / Definitions
 
 #define NRF_APP_MESSAGE_START   (u8)0x80
 
+
 #define NRF_CMD_TEST_LENGTH              (u8)1
 #define NRF_CMD_TEST_RESPONSE_LENGTH     (u8)1
 /* end */

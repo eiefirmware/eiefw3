@@ -29,8 +29,14 @@ Variable names shall start with "Anttt_<type>" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type Anttt_pfnStateMachine;              /* The application state machine function pointer */
 static u32 Anttt_u32Timeout;                           /* Timeout counter used across states */
+static u32 Anttt_u32Result;
 
 static u8 Anttt_au8SpiReceiveBuffer[U8_SPI0_BUFFER_SIZE];
+
+
+static u8 Anttt_au8TestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
+static u8 Anttt_au8AckMessage[]   = {NRF_SYNC_BYTE, ANTTT_APP_MESSAGE_ACK_LENGTH, ANTTT_APP_MESSAGE_ACK};
+static u8 Anttt_au8NAckMessage[]  = {NRF_SYNC_BYTE, ANTTT_APP_MESSAGE_NACK_LENGTH, ANTTT_APP_MESSAGE_NACK};
 
 
 /**********************************************************************************************************************
@@ -129,30 +135,73 @@ void AntttRunActiveState(void)
 /* State Machine definitions                                                                                          */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+/*!--------------------------------------------------------------------------------------------------------------------
+@fn static void AntttSM_Idle(void)
+@brief Looks for a connection to a game, either from BLE, ANT,
+or over SPI. This first command must be a GAME_REQUEST.
+*/
+static void AntttSM_Idle(void)
+{
+  static bool bBlinkOn = true;
+  u8 u8SpiMsgLength;
+  
+  /* Check if a BLE module is connected to client */
+  if (G_u32BPEngenuicsFlags == _BPENGENUICS_CONNECTED)
+  {
+    /* Set LEDs and proceed to wait state */
+    LedOn(BLUE);
+    bBlinkOn = false;
+    
+    /* Look for a BLE game request */
+  }
+  else
+  {
+    if(!bBlinkOn)
+    {
+      LedBlink(BLUE, LED_4HZ);
+      bBlinkOn = true;
+    }
+  }
+  
+  /* Read any SPI messages */
+  if(NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED])
+  {
+    /* Clear the MRDY event and receive bytes */
+    NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED] = 0;
+    u8ReceivedBytes = SpiMasterReceive(Anttt_au8SpiReceiveBuffer);
+
+    /* Verify sync byte */
+    if( Anttt_au8SpiReceiveBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE)
+    {
+      u8SpiMsgLength = Anttt_au8SpiReceiveBuffer[NRF_LENGTH_INDEX];
+      
+      /* ANTTT will respond to Test Message*/
+      if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] == NRF_CMD_TEST)
+      {
+        Anttt_u32Result = SpiMasterSend(Anttt_au8TestResponse, 
+                                        (NRF_CMD_TEST_RESPONSE_LENGTH + NRF_OVERHEAD_BYTES) );
+      }
+
+      /* And ANTTT will respond to Game Request Message */
+      if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] == NRF_CMD_TEST)
+      {
+        Anttt_u32Result = SpiMasterSend(Anttt_au8AckMessage, 
+                                        (ANTTT_APP_MESSAGE_ACK_LENGTH + NRF_OVERHEAD_BYTES) );
+        
+      }
+
+    }
+  } /* end SPI message processing */
+ 
+  /* ANT connectivity */
+} /* end */
+
+
 /*--------------------------------------------------------------------------------------------------------------------
 State: AntttSM_Idle
 The program looks for a connection to a game, either from BLE, ANT,
 or over SPI. This first command must be a GAME_REQUEST.
 */
-static void AntttSM_Idle(void)
-{
-  /* Check if module is connected to client */
-  if (G_u32BPEngenuicsFlags == _BPENGENUICS_CONNECTED)
-  {
-    /* Set LEDs and proceed to wait state */
-    LedOn(BLUE); 
-    
-    /* Look for a BLE game request */
-  }
-  
-  /* Read any SPI messages */
-  if( 
-  {
-    
-  }
- 
- 
-} 
 
 
 

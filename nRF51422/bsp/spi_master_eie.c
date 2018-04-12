@@ -51,6 +51,7 @@ Requires:
 
 Promises:
 - All data is clocked out on SPI
+- Returns NRF_ status
 
 */
 u32 SpiMasterSend(u8* pu8TxBuffer_, u8 u8Length_)
@@ -111,6 +112,8 @@ driver, data is half duplex.  If the SAM3U2 has data to send, MRDY will
 be
 
 Requires:
+- The incoming message MUST follow the application protocol so the
+second byte is the length of the message.  
 @PARAM pu8RxBuffer_ points to the buffer where data is to be received; 
 
 Promises:

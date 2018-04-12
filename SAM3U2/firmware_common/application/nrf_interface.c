@@ -253,6 +253,11 @@ void nrfInterfaceInitialize(void)
   if(nrfInterface_Ssp != NULL)  
   {
     DebugPrintf(G_au8UtilMessageOK);
+
+    /* Debugging state indication */
+    LedPWM(WHITE, LED_PWM_5);
+    LedOff(PURPLE);
+    LedOff(BLUE);
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
   else
@@ -302,25 +307,10 @@ Promises:
 */
 void nrfTxFlowControlCallback(void)
 {
-#if 0
-  /* If this is the first call (from SSP Idle), then MRDY needs to be asserted.
-  The nRF should respond by asserting CS, which will then trigger the nRF Idle
-  state to move on to Tx (when it sees MRDY asserted) */
-  if( nrfInterface_u8TxBytes == 0 )
-  {
-    NRF_MRDY_ASSERT();
-  }
-  /* Otherwise a byte was just sent, so increment the byte counter and make
-  sure SRDY is DEASSERTED */
-  else
-  {
-    NRF_SRDY_DEASSERT();
-    nrfInterface_u8TxBytes++;
-  }
-#endif
-
+  /* Keep the flow control in this state - no harm in doing it every byte */
   NRF_MRDY_ASSERT();
   NRF_SRDY_DEASSERT();
+  
   nrfInterface_u8TxBytes++;
  
 } /* end nrfTxFlowControlCallback() */
@@ -373,11 +363,6 @@ State Machine Function Definitions
 a message to be queued to the nRF Interface */
 static void nrfInterfaceSM_Idle(void)
 {
-  /* Debugging state indication */
-  LedOn(WHITE);
-  LedOff(PURPLE);
-  LedOff(BLUE);
-  
   /* If the CS flag gets asserted, the NRF is ready to clock the system */
   if( IS_CS_ASSERTED() )
   {
@@ -390,6 +375,11 @@ static void nrfInterfaceSM_Idle(void)
       /* Ready to go, so assert SRDY. */
       for(u32 i = 0; i < 100; i++);
       NRF_SRDY_ASSERT();
+
+     /* Debugging state indication */
+      LedPWM(BLUE, LED_PWM_5);
+      LedOff(WHITE);
+      LedOff(PURPLE);
       nrfInterface_pfStateMachine = nrfInterfaceSM_Tx;
     }
     /* Otherwise we are receiving */
@@ -399,6 +389,11 @@ static void nrfInterfaceSM_Idle(void)
       nrfInterface_u8RxBytes = 0;
       for(u32 i = 0; i < 100; i++);
       NRF_SRDY_ASSERT();
+      
+     /* Debugging state indication */
+      LedPWM(PURPLE, LED_PWM_5);
+      LedOff(WHITE);
+      LedOff(BLUE);
       nrfInterface_pfStateMachine = nrfInterfaceSM_Rx;
     }
   } 
@@ -478,6 +473,12 @@ static void nrfInterfaceSM_Rx(void)
     nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
     nrfInterface_u8RxBytes = 0;
     NRF_SRDY_DEASSERT();
+    
+   /* Debugging state indication */
+    LedPWM(WHITE, LED_PWM_5);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
     
   } /* end !CS_ASSERTED */
@@ -491,10 +492,20 @@ static void nrfInterfaceSM_Rx(void)
 
     nrfInterface_pu8RxBufferNextChar = nrfInterface_au8RxBuffer;
     nrfInterface_u8RxBytes = 0;
+
+   /* Debugging state indication */
+    LedPWM(WHITE, LED_PWM_5);
+    LedOff(PURPLE);
+    LedOff(BLUE);
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
 
     NRF_SRDY_DEASSERT();
     ACK_CS_ASSERTED();
+
+   /* Debugging state indication */
+    LedPWM(WHITE, LED_PWM_5);
+    LedOff(PURPLE);
+    LedOff(BLUE);
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
 #endif
@@ -510,11 +521,6 @@ Note that for short messages this will occur prior to entering this state.
 */
 static void nrfInterfaceSM_Tx(void)   
 {
-  /* Debugging state indication */
-  LedOff(WHITE);
-  LedOff(PURPLE);
-  LedOn(BLUE);
-
   /* Watch for CS to deassert */
   if( !IS_CS_ASSERTED() )
   {
@@ -522,6 +528,11 @@ static void nrfInterfaceSM_Tx(void)
     NRF_MRDY_DEASSERT();
     ACK_CS_ASSERTED();
     nrfInterface_u8TxBytes = 0;
+
+   /* Debugging state indication */
+    LedPWM(WHITE, LED_PWM_5);
+    LedOff(PURPLE);
+    LedOff(BLUE);
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   } /* end !CS_ASSERTED */
 
@@ -535,6 +546,11 @@ static void nrfInterfaceSM_Tx(void)
     NRF_MRDY_DEASSERT();
     ACK_CS_ASSERTED();
     DebugPrintf("nRF Tx timeout\n\r");
+
+   /* Debugging state indication */
+    LedPWM(WHITE, LED_PWM_5);
+    LedOff(PURPLE);
+    LedOff(BLUE);
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   }
 #endif
