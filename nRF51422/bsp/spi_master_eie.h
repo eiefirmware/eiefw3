@@ -84,7 +84,7 @@ Constants / Definitions
                                              (GPIOTE_CONFIG_MODE_Event      << GPIOTE_CONFIG_MODE_Pos)     )
 
 #define SPI0_CONFIG_CNF   ( (SPI_CONFIG_ORDER_LsbFirst << SPI_CONFIG_ORDER_Pos) | \
-                            (SPI_CONFIG_CPHA_Trailing   << SPI_CONFIG_CPHA_Pos)  | \
+                            (SPI_CONFIG_CPHA_Trailing  << SPI_CONFIG_CPHA_Pos)  | \
                             (SPI_CONFIG_CPOL_ActiveLow << SPI_CONFIG_CPOL_Pos) )
 
 
