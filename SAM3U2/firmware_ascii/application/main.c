@@ -68,6 +68,7 @@ void main(void)
 
   /* Application initialization */
   nrfInterfaceInitialize();
+  TermTacToeInitialize();
   UserApp1Initialize();
   UserApp2Initialize();
   UserApp3Initialize();
@@ -98,6 +99,7 @@ void main(void)
 
     /* Applications */
     nrfInterfaceRunActiveState();
+    TermTacToeRunActiveState();
     UserApp1RunActiveState();
     UserApp2RunActiveState();
     UserApp3RunActiveState();

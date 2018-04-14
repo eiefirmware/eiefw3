@@ -175,21 +175,12 @@ static void AntttSM_Idle(void)
     {
       u8SpiMsgLength = Anttt_au8SpiReceiveBuffer[NRF_LENGTH_INDEX];
       
-      /* ANTTT will respond to Test Message*/
+      /* ANTTT will only respond to a Test Message in this state */
       if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] == NRF_CMD_TEST)
       {
         Anttt_u32Result = SpiMasterSend(Anttt_au8TestResponse, 
                                         (NRF_CMD_TEST_RESPONSE_LENGTH + NRF_OVERHEAD_BYTES) );
       }
-
-      /* And ANTTT will respond to Game Request Message */
-      if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] == NRF_CMD_TEST)
-      {
-        Anttt_u32Result = SpiMasterSend(Anttt_au8AckMessage, 
-                                        (ANTTT_APP_MESSAGE_ACK_LENGTH + NRF_OVERHEAD_BYTES) );
-        
-      }
-
     }
   } /* end SPI message processing */
  
@@ -198,9 +189,8 @@ static void AntttSM_Idle(void)
 
 
 /*--------------------------------------------------------------------------------------------------------------------
-State: AntttSM_Idle
-The program looks for a connection to a game, either from BLE, ANT,
-or over SPI. This first command must be a GAME_REQUEST.
+State: AntttSM_Game
+Plays a complete game of Tic-Tac-Toe.  
 */
 
 

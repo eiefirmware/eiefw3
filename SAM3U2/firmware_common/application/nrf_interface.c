@@ -112,7 +112,6 @@ Function Definitions
 
 /*!--------------------------------------------------------------------------------------------------------------------
 @fn u8 nrfNewMessageCheck(void)
-
 @brief Determines if a new message is available from the nRF Interface.
 
 The function returns the command number of the message in memory so the
@@ -412,11 +411,6 @@ static void nrfInterfaceSM_Rx(void)
 {
   u8 u8Length;
     
-  /* Debugging state indication */
-  LedOff(WHITE);
-  LedOn(PURPLE);
-  LedOff(BLUE);
-
   /* Watch for CS to deassert */
   if( !IS_CS_ASSERTED() )
   {
@@ -454,7 +448,7 @@ static void nrfInterfaceSM_Rx(void)
           case NRF_CMD_TEST:
           {
             /* If a test message is received, send response back */
-            DebugPrintf("\n\rSPI test message received\n\r");
+            //DebugPrintf("\n\rSPI test message received\n\r");
             nrfInterface_u32MsgToken = nrfQueueMessage(nrfInterface_au8TestResponse);
             break;
           }

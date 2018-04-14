@@ -2039,6 +2039,9 @@
         <name>$PROJ_DIR$\..\..\firmware_common\application\nrf_interface.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\application\term_tac_toe.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\application\user_app1.h</name>
       </file>
       <file>
@@ -2058,6 +2061,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\application\nrf_interface.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\application\term_tac_toe.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\application\user_app1.c</name>

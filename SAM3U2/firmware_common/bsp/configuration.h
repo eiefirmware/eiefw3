@@ -89,6 +89,7 @@ Includes
 #include "debug.h"
 #include "music.h"
 #include "nrf_interface.h"
+#include "term_tac_toe.h"
 #include "user_app1.h"
 #include "user_app2.h"
 #include "user_app3.h"

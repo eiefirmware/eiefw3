@@ -143,12 +143,12 @@ u8 u8String[] = "A string to print.\n\r"
 DebugPrintf(u8String);
 
 Requires:
-  - The debug UART resource has been setup for the debug application.
+- The debug UART resource has been setup for the debug application.
 @param u8String_ is a NULL-terminated C-string
 
 Promises:
-  - The string is queued to the debug UART.
-  - The message token is returned
+- The string is queued to the debug UART.
+- The message token is returned
 
 */
 u32 DebugPrintf(u8* u8String_)
@@ -492,6 +492,7 @@ void DebugInitialize(void)
   /* Otherwise send the first message, set "good" flag and head to Idle */
   else
   {
+    DebugPrintf(TERM_FORMAT_RESET);
     DebugPrintf(Debug_au8StartupMsg);   
     DebugPrintf(au8FirmwareVersion);
     

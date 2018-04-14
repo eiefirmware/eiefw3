@@ -17,13 +17,13 @@ Constants / Definitions
 #define ANTTT_COMMAND_UNUSED_OFFSET        (u8)0x02
 
 #define ANTTT_APP_MSG_GAME_REQUEST         (u8)0xA0
-#define ANTTT_APP_MSG_MOVE                 (u8)0xCC
+#define ANTTT_APP_MSG_MOVE                 (u8)0xAA
 #define ANTTT_APP_MSG_NACK                 (u8)0xAE   
 #define ANTTT_APP_MSG_ACK                  (u8)0xAF   
 
 #define ANTTT_APP_MESSAGE_ACK_LENGTH       (u8)1   
 #define ANTTT_APP_MESSAGE_NACK_LENGTH      (u8)1   
-#define ANTTT_APP_MSG_GAME_REQUEST_LENGTH  (u8)0xA0
+#define ANTTT_APP_MSG_GAME_REQUEST_LENGTH  (u8)2
 
 
 /* end ANTTT Communication Protocol */
