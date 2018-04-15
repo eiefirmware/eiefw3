@@ -37,6 +37,7 @@ u8 nrfNewMessageCheck(void);
 void nrfGetAppMessage(u8* pu8AppBuffer_);
 u32 nrfQueueMessage(u8* pu8AppMessage_);
 
+
 /*------------------------------------------------------------------------------------------------------------------*/
 /*! @protectedsection */                                                                                            
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -45,6 +46,7 @@ void nrfInterfaceRunActiveState(void);
 
 void nrfTxFlowControlCallback(void);
 void nrfRxFlowControlCallback(void);
+
 
 /*------------------------------------------------------------------------------------------------------------------*/
 /*! @privatesection */                                                                                            

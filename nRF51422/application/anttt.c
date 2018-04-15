@@ -35,8 +35,8 @@ static u8 Anttt_au8SpiReceiveBuffer[U8_SPI0_BUFFER_SIZE];
 
 
 static u8 Anttt_au8TestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
-static u8 Anttt_au8AckMessage[]   = {NRF_SYNC_BYTE, ANTTT_APP_MESSAGE_ACK_LENGTH, ANTTT_APP_MESSAGE_ACK};
-static u8 Anttt_au8NAckMessage[]  = {NRF_SYNC_BYTE, ANTTT_APP_MESSAGE_NACK_LENGTH, ANTTT_APP_MESSAGE_NACK};
+static u8 Anttt_au8AckMessage[]   = {NRF_SYNC_BYTE, ANTTT_APP_MSG_ACK_LENGTH, ANTTT_APP_MSG_ACK};
+static u8 Anttt_au8NAckMessage[]  = {NRF_SYNC_BYTE, ANTTT_APP_MSG_NACK_LENGTH, ANTTT_APP_MSG_NACK};
 
 
 /**********************************************************************************************************************
@@ -143,6 +143,7 @@ or over SPI. This first command must be a GAME_REQUEST.
 static void AntttSM_Idle(void)
 {
   static bool bBlinkOn = true;
+  u8 u8ReceivedBytes;
   u8 u8SpiMsgLength;
   
   /* Check if a BLE module is connected to client */

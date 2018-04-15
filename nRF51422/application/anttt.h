@@ -21,8 +21,8 @@ Constants / Definitions
 #define ANTTT_APP_MSG_NACK                 (u8)0xAE   
 #define ANTTT_APP_MSG_ACK                  (u8)0xAF   
 
-#define ANTTT_APP_MESSAGE_ACK_LENGTH       (u8)1   
-#define ANTTT_APP_MESSAGE_NACK_LENGTH      (u8)1   
+#define ANTTT_APP_MSG_ACK_LENGTH           (u8)1   
+#define ANTTT_APP_MSG_NACK_LENGTH          (u8)1   
 #define ANTTT_APP_MSG_GAME_REQUEST_LENGTH  (u8)2
 
 

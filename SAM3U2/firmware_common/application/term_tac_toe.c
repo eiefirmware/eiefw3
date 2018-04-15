@@ -42,6 +42,9 @@ volatile u32 G_u32TermTacToeFlags;                            /*!< @brief Global
 extern volatile u32 G_u32SystemTime1ms;                   /*!< @brief From main.c */
 extern volatile u32 G_u32SystemTime1s;                    /*!< @brief From main.c */
 
+extern u8 G_au8DebugScanfBuffer[DEBUG_SCANF_BUFFER_SIZE]; /* From debug.c */
+extern u8 G_u8DebugScanfCharCount;                        /* From debug.c */
+
 extern u8 G_au8UtilMessageOK[];                           /*!< @brief From utilities.c */
 extern u8 G_au8UtilMessageFAIL[];                         /*!< @brief From utilities.c */
 extern u8 G_au8UtilMessageON[];                           /*!< @brief From utilities.c */
@@ -56,10 +59,10 @@ static fnCode_type TermTacToe_pfStateMachine;               /*!< @brief The stat
 static u32 TermTacToe_u32Timeout;                           /*!< @brief Timeout counter used across states */
 static u32 TermTacToe_u32Flags;
 
-static u8  TermTacToe_au8RxBuffer[U8_NRF_BUFFER_SIZE];      /* Space for verified received ANT messages */
-static u8* TermTacToe_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the AntRxBuffer */
+static u8 TermTacToe_au8UartBuffer[U8_NRF_BUFFER_SIZE];     /* Space for verified received application messages */
+//static u8* TermTacToe_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the buffer */
 
-static u8 TermTacToe_au8Message[U8_NRF_BUFFER_SIZE];        /* Latest received message */
+static u8 TermTacToe_au8Message[U8_NRF_BUFFER_SIZE];        /* Latest received application message */
 
 
 static u8 TermTacToe_au8GameBoard[] = "     |     |\n\r  0  |  1  |  2\n\r     |     |\n\r-----|-----|-----\n\r     |     |\n\r  3  |  4  |  5 \n\r     |     |\n\r-----|-----|-----\n\r     |     |\n\r  6  |  7  |  8\n\r     |     |\n\n\n\r";
@@ -257,6 +260,20 @@ void TermTacToeWriteUserMessage(UserMessageType eMessageNumber_)
   /* Write the message */
   DebugPrintf(TermTacToe_au8UserMessage[eMessageNumber_]);
   
+  /* Add user prompt for move */  
+  if(eMessageNumber_ == TTT_LOCAL_MOVE)
+  {
+    /* CursorPos Reset TERM_BKG_BLK TERM_TEXT_WHT TERM_CUR_HIDE */
+    DebugPrintf("\033[13;1H\033[0m\033[40m\033[37m\033[?25l");
+    DebugPrintf(" Enter Location");
+  }
+  /* else clear the move prompt line */  
+  else
+  {
+    /* CursorPos TERM_BKG_BLK TERM_DELETE_RIGHT TERM_TEXT_BLK */
+    DebugPrintf("\033[13;1H\033[40m\033[K\033[30m");
+  }
+  
 } /* end TermTacToeWriteUserMessage() */
 
 
@@ -286,7 +303,11 @@ static void TermTacToeSM_Setup(void)
  
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Monitor the Debug input and nRF interface for game messages */
+/* Monitor the nRF interface for game messages.
+Setup: yellow LED on to indicate state.  Character input on debug can be ignored (but
+this may have to be addressed since someone typing on the terminal will add characters
+to the terminal screen and cause the display to move.
+*/
 static void TermTacToeSM_Idle(void)
 {
   /* Character write test */
@@ -300,14 +321,14 @@ static void TermTacToeSM_Idle(void)
   if(WasButtonPressed(BUTTON1))
   {
     ButtonAcknowledge(BUTTON1);
-    TermTacToeWriteSquare(2, EX);
+    TermTacToeWriteSquare(8, EX);
     TermTacToeWriteUserMessage(TTT_REMOTE_MOVE);
   }
 
   if(WasButtonPressed(BUTTON2))
   {
     ButtonAcknowledge(BUTTON2);
-    TermTacToeWriteSquare(4, OH);
+    TermTacToeWriteSquare(0, OH);
     TermTacToeWriteUserMessage(TTT_LOCAL_MOVE);
   }
 
@@ -319,7 +340,18 @@ static void TermTacToeSM_Idle(void)
   }
   
 } /* end TermTacToeSM_Idle() */
-     
+   
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/* Play a local turn.
+Setup: Green LED on to indicate state
+*/
+static void TermTacToeSM_LocalTurn(void)          
+{
+  
+} /* end TermTacToeSM_LocalTurn() */
+
+
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */

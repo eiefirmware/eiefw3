@@ -7,9 +7,12 @@ The communication uses a SPI slave with flow control on the SAM3U2.
 A simple protocol will be used for the messages:
 
 [START_BYTE, LENGTH, COMMAND, DATA0, …, DATAn]
-where,
+
 START_BYTE = 0x5A
 LENGTH = 1 + the number of data bytes
+COMMAND = one byte command number defined in nrf_interface.h
+
+DATA = payload that matches COMMAND and LENGTH
 
 Messages will always be complete when transmitted or received.
 The slave will initialize with SRDY asserted so it is ready for a message.
@@ -45,7 +48,9 @@ TYPES
 - NONE
 
 PUBLIC FUNCTIONS
-- NONE
+- u8 nrfNewMessageCheck(void)
+- void nrfGetAppMessage(u8* pu8AppBuffer_)
+- u32 nrfQueueMessage(u8* pu8AppMessage_)
 
 PROTECTED FUNCTIONS
 - void nrfInterfaceInitialize(void)
@@ -141,7 +146,7 @@ u8 nrfNewMessageCheck(void)
 
 
 /*!--------------------------------------------------------------------------------------------------------------------
-@fn void nrfGetAppMessage(u8* pu8AppBuffer_);
+@fn void nrfGetAppMessage(u8* pu8AppBuffer_)
 @brief Transfer the current message to task.
 
 The assumption is that the task has confirmed the message number and has
@@ -236,11 +241,11 @@ void nrfInterfaceInitialize(void)
   nrfInterface_sSspConfig.u32CsPin           = NRF_SPI_CS_PIN;
   nrfInterface_sSspConfig.eBitOrder          = LSB_FIRST;
   nrfInterface_sSspConfig.eSspMode           = SPI_SLAVE_FLOW_CONTROL;
-  nrfInterface_sSspConfig.fnSlaveTxFlowCallback = nrfTxFlowControlCallback;
-  nrfInterface_sSspConfig.fnSlaveRxFlowCallback = nrfRxFlowControlCallback;
   nrfInterface_sSspConfig.pu8RxBufferAddress = nrfInterface_au8RxBuffer;
   nrfInterface_sSspConfig.ppu8RxNextByte     = &nrfInterface_pu8RxBufferNextChar;
   nrfInterface_sSspConfig.u16RxBufferSize    = U8_NRF_BUFFER_SIZE;
+  nrfInterface_sSspConfig.fnSlaveTxFlowCallback = nrfTxFlowControlCallback;
+  nrfInterface_sSspConfig.fnSlaveRxFlowCallback = nrfRxFlowControlCallback;
 
   nrfInterface_Ssp = SspRequest(&nrfInterface_sSspConfig);
   NRF_SSP_FLAGS = 0;
@@ -389,7 +394,7 @@ static void nrfInterfaceSM_Idle(void)
       for(u32 i = 0; i < 100; i++);
       NRF_SRDY_ASSERT();
       
-     /* Debugging state indication */
+      /* Debugging state indication */
       LedPWM(PURPLE, LED_PWM_5);
       LedOff(WHITE);
       LedOff(BLUE);
@@ -530,6 +535,13 @@ static void nrfInterfaceSM_Tx(void)
     nrfInterface_pfStateMachine = nrfInterfaceSM_Idle;
   } /* end !CS_ASSERTED */
 
+#if 0
+  /* Optionally verify that the message was sent based on the status
+  of nrfInterface_u32MsgToken.  Could also compare nrfInterface_u8TxBytes
+  with the expected bytes of the message transmitted.  
+  For now we will not do this. */
+#endif
+  
 #if 1
   /* Watch for timeout */
   if( IsTimeUp(&nrfInterface_u32Timeout, U32_TRX_TIMEOUT_MS) )
