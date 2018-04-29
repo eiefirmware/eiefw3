@@ -16,6 +16,12 @@ Type Definitions
 /**********************************************************************************************************************
 Constants / Definitions
 **********************************************************************************************************************/
+/* G_u32AntIntFlags */
+#define _ANTENGENUICS_CONNECTED           (u32)0x00000001
+#define _ANTENGENUICS_SERVICE_ENABLED     (u32)0x00000002
+/* end G_u32AntIntFlags */
+
+
 #define ANTINT_INIT (u32)0x00
 /*
     31 [0] 

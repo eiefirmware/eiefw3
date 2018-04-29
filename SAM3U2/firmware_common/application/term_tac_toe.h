@@ -39,6 +39,7 @@ void TermTacToeRunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 void TermTacToeWriteSquare(u8 u8Square_, bool bX_);
 void TermTacToeWriteUserMessage(UserMessageType eMessageNumber_);
+void TermTacToeClearAvailableSpaces(void);
 
 
 /***********************************************************************************************************************
@@ -59,6 +60,7 @@ Constants / Definitions
 #define EX              (bool)TRUE
 #define OH              (bool)FALSE
 
+#define U8_TERMINAL_INPUT_BUFFER_SIZE   (u8)10
 
 #endif /* __TERM_TAC_TOE_H */
 

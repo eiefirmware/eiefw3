@@ -1,18 +1,16 @@
-/**********************************************************************************************************************
-File: ant_integration.c                                                                
-
-Description:
-This is a ant_integration .c file new source code
+/*!*********************************************************************************************************************
+@file ant_integration.c                                                                
+@brief This is a ant_integration .c file new source code
 **********************************************************************************************************************/
 
 #include "configuration.h"
 
 /***********************************************************************************************************************
 Global variable definitions with scope across entire project.
-All Global variable names shall start with "G_"
+All Global variable names shall start with "G_xxAntInt"
 ***********************************************************************************************************************/
 /* New variables */
-volatile u32 G_u32ANTIntegrationFlags;                 /* Global state flags */
+volatile u32 G_u32AntIntFlags;                         /* Global state flags */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/

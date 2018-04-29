@@ -25,8 +25,10 @@ Constants / Definitions
 #define BPENGENUICS_RX_CHAR_UUID       0x0002
 
 /* G_u32BPEngenuicsFlags */
-#define _BPENGENUICS_CONNECTED          (u32)0x00000001
+#define _BPENGENUICS_CONNECTED           (u32)0x00000001
 #define _BPENGENUICS_SERVICE_ENABLED     (u32)0x00000002
+/* end G_u32BPEngenuicsFlags */
+
 
 #define BPENGENUICS_INIT (u32)0x00000000
 /*

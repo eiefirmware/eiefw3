@@ -6,7 +6,8 @@
 
 This is not a game engine -- it is simply an interface to take game commands
 from the nRF processor and update the terminal display and/or LCD; or it 
-takes commands from the terminal and sends them to the nRF.
+takes commands from the terminal and sends them to the nRF.  The only
+part of the game that is tracked are the available spaces.
 
 ------------------------------------------------------------------------------------------------------------------------
 GLOBALS
@@ -59,11 +60,12 @@ static fnCode_type TermTacToe_pfStateMachine;               /*!< @brief The stat
 static u32 TermTacToe_u32Timeout;                           /*!< @brief Timeout counter used across states */
 static u32 TermTacToe_u32Flags;
 
-static u8 TermTacToe_au8UartBuffer[U8_NRF_BUFFER_SIZE];     /* Space for verified received application messages */
+static u8 TermTacToe_au8UartBuffer[U8_NRF_BUFFER_SIZE];     /*!< @brief Space for verified received application messages */
 //static u8* TermTacToe_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the buffer */
 
-static u8 TermTacToe_au8Message[U8_NRF_BUFFER_SIZE];        /* Latest received application message */
+static u8 TermTacToe_au8Message[U8_NRF_BUFFER_SIZE];        /*!< @brief Latest received application message */
 
+static u8 TermTacToe_au8TerminalInputBuffer[U8_TERMINAL_INPUT_BUFFER_SIZE];
 
 static u8 TermTacToe_au8GameBoard[] = "     |     |\n\r  0  |  1  |  2\n\r     |     |\n\r-----|-----|-----\n\r     |     |\n\r  3  |  4  |  5 \n\r     |     |\n\r-----|-----|-----\n\r     |     |\n\r  6  |  7  |  8\n\r     |     |\n\n\n\r";
 
@@ -71,6 +73,9 @@ static u8 TermTacToe_au8GameBoard[] = "     |     |\n\r  0  |  1  |  2\n\r     |
 static u8 TermTacToe_au8UserMessage[][18] = {" WAIT TO CONNECT ",
                                              "    YOUR TURN    ",
                                              "    THEIR TURN   " };
+
+static bool TermTacToe_abAvailableSpaces[9];
+
 
 /**********************************************************************************************************************
 Function Definitions
@@ -98,6 +103,7 @@ Promises:
 /*--------------------------------------------------------------------------------------------------------------------*/
 /*! @protectedsection */                                                                                            
 /*--------------------------------------------------------------------------------------------------------------------*/
+
 
 /*!--------------------------------------------------------------------------------------------------------------------
 @fn void TermTacToeInitialize(void)
@@ -161,11 +167,13 @@ void TermTacToeRunActiveState(void)
 
 Requires:
 - Game board is configured and starts at address 1,1
-@PARAM u8Square_ is the to update (0...8)
+@PARAM u8Square_ is the to update (0...8); it is assumed
+to be vetted for correctness (i.e. it is available)
 @PARAM bX_ is TRUE for a X
 
 Promises:
 - Requested square is updated to the shape requested
+- Associated value in TermTacToe_abAvailableSpaces set to FALSE.
 
 */
 void TermTacToeWriteSquare(u8 u8Square_, bool bX_)
@@ -178,7 +186,7 @@ void TermTacToeWriteSquare(u8 u8Square_, bool bX_)
   u8 au8Columns[][3] = {"3", "9", "15"};
   u8 au8Rows[][3]    = {"2", "6", "10"};
   
-  /* The column and index is calculated to chose from one of the three */
+  /* The column and index is calculated to choose from one of the three */
   u8 u8ColumnIndex = u8Square_ % 3;
   u8 u8RowIndex = u8Square_ / 3;
   
@@ -230,6 +238,9 @@ void TermTacToeWriteSquare(u8 u8Square_, bool bX_)
   DebugPrintf(au8SetCursor);
   DebugPrintf(au8CharToWrite); 
   
+  /* Clear the available space */
+  TermTacToe_abAvailableSpaces[u8Square_] = FALSE;
+  
 } /* end TermTacToeWriteSquare() */
 
 
@@ -277,12 +288,35 @@ void TermTacToeWriteUserMessage(UserMessageType eMessageNumber_)
 } /* end TermTacToeWriteUserMessage() */
 
 
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void TermTacToeClearAvailableSpaces(void)
+@brief Resets all of the "Available spaces" in the game board array.
+
+Requires:
+- NONE
+
+Promises:
+- Requested square is updated to the shape requested
+
+*/
+void TermTacToeClearAvailableSpaces(void)
+{
+  for(u8 i = 0; i < 9; i++)
+  {
+    TermTacToe_abAvailableSpaces[i] = TRUE;
+  }
+  
+} /* end TermTacToeWriteUserMessage() */
+
+
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
 
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Initialize state during main program */
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_Setup(void)
+@brief Initialize state during main program 
+*/
 static void TermTacToeSM_Setup(void)
 {
   /* Configure the terminal window */
@@ -294,22 +328,41 @@ static void TermTacToeSM_Setup(void)
   /* Initialize the game board and game variables */
   DebugPrintf(TermTacToe_au8GameBoard);
   TermTacToeWriteUserMessage(TTT_WAITING);
+  TermTacToeClearAvailableSpaces();
   
   /* Advance to start state */
+  LedOn(GREEN);
   TermTacToe_pfStateMachine = TermTacToeSM_Idle;
-
   
 } /* end TermTacToeSM_Setup() */
  
 
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Monitor the nRF interface for game messages.
-Setup: yellow LED on to indicate state.  Character input on debug can be ignored (but
-this may have to be addressed since someone typing on the terminal will add characters
-to the terminal screen and cause the display to move.
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_Idle(void)
+@brief Monitor the nRF interface for game messages.
+
+Wait for indication for who starts. 
+Character input on debug can be ignored (characters are not echoed,
+but should be cleared from the buffer if any come in).
+
+Setup: 
+Orange LED on to indicate state.  
 */
 static void TermTacToeSM_Idle(void)
 {
+  /* Look for key presses and read them to ensure the buffer does not overflow */
+  if(G_u8DebugScanfCharCount)
+  {
+    DebugScanf(TermTacToe_au8TerminalInputBuffer);
+  }
+  
+  /* Wait for game message to indicate which player is starting */
+  if(nrfNewMessageCheck != NRF_CMD_EMPTY)
+  {
+    /* The only valid message right now is a game start message */
+    
+  }
+  
   /* Character write test */
   if(WasButtonPressed(BUTTON0))
   {
@@ -335,16 +388,23 @@ static void TermTacToeSM_Idle(void)
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
-    TermTacToeWriteSquare(8, OH);
+    TermTacToeWriteSquare(7, OH);
     TermTacToeWriteUserMessage(TTT_LOCAL_MOVE);
   }
   
 } /* end TermTacToeSM_Idle() */
    
 
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Play a local turn.
-Setup: Green LED on to indicate state
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_LocalTurn(void)          
+@brief Play a local turn.
+
+Scan keyboard input.  Allow only characters that are available to advance from this
+state.  Do not echo characters.
+
+Setup: 
+Yellow LED to indicate state.  
+Terminal window should indicate "Your turn".
 */
 static void TermTacToeSM_LocalTurn(void)          
 {
@@ -352,9 +412,21 @@ static void TermTacToeSM_LocalTurn(void)
 } /* end TermTacToeSM_LocalTurn() */
 
 
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_RemoteTurn(void)          
+@brief Wait for move or other command.
 
-/*-------------------------------------------------------------------------------------------------------------------*/
-/* Handle an error */
+Setup: GREEN LED on to indicate state
+*/
+static void TermTacToeSM_LocalTurn(void)          
+{
+  
+} /* end TermTacToeSM_LocalTurn() */
+
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_Error(void)          
+@brief Handle an error 
+*/
 static void TermTacToeSM_Error(void)          
 {
   

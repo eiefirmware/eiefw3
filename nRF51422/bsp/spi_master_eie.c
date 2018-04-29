@@ -105,13 +105,14 @@ u32 SpiMasterSend(u8* pu8TxBuffer_, u8 u8Length_)
 
 /*!----------------------------------------------------------------------------------------------------------------------
 @fn u8 SpiMasterReceive(u8* pu8RxBuffer)
-@brief Completes a standard SPI data transmission.
+@brief Completes a standard SPI data reception.
 
 By definition, SPI always transmits and receives simultaneously.  For this
-driver, data is half duplex.  If the SAM3U2 has data to send, MRDY will
-be
+driver, data is half duplex. So it is assumed that MRDY was asserted which
+triggered the call to this function.
 
 Requires:
+- MRDY is asserted
 - The incoming message MUST follow the application protocol so the
 second byte is the length of the message.  
 @PARAM pu8RxBuffer_ points to the buffer where data is to be received; 
