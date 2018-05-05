@@ -59,11 +59,12 @@ Variable names shall start with "TermTacToe_<type>" and be declared as static.
 static fnCode_type TermTacToe_pfStateMachine;               /*!< @brief The state machine function pointer */
 static u32 TermTacToe_u32Timeout;                           /*!< @brief Timeout counter used across states */
 static u32 TermTacToe_u32Flags;
+static bool TermTacToe_bLocalIsEx;
 
-static u8 TermTacToe_au8UartBuffer[U8_NRF_BUFFER_SIZE];     /*!< @brief Space for verified received application messages */
+//static u8 TermTacToe_au8UartBuffer[U8_NRF_BUFFER_SIZE];     /*!< @brief Space for verified received application messages */
 //static u8* TermTacToe_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the buffer */
 
-static u8 TermTacToe_au8Message[U8_NRF_BUFFER_SIZE];        /*!< @brief Latest received application message */
+static u8 TermTacToe_au8AppMessage[U8_ANTTT_MAX_MESSAGE_LENGTH];        /*!< @brief Latest received application message */
 
 static u8 TermTacToe_au8TerminalInputBuffer[U8_TERMINAL_INPUT_BUFFER_SIZE];
 
@@ -72,9 +73,15 @@ static u8 TermTacToe_au8GameBoard[] = "     |     |\n\r  0  |  1  |  2\n\r     |
                                             /*12345678901234567*/
 static u8 TermTacToe_au8UserMessage[][18] = {" WAIT TO CONNECT ",
                                              "    YOUR TURN    ",
-                                             "    THEIR TURN   " };
+                                             "    THEIR TURN   ",
+                                             "    YOU WIN!!!   ",
+                                             "    YOU LOSE!!   ",
+                                             "     TIE GAME    ",
+                                            };
 
 static bool TermTacToe_abAvailableSpaces[9];
+
+static u8 TermTacToe_au8SpiGameMove[]     = {NRF_SYNC_BYTE, ANTTT_APP_MSG_MOVE_LENGTH, ANTTT_APP_MSG_MOVE, 0, GAME_MOVE_DATA_STATUS_UNKNOWN};
 
 
 /**********************************************************************************************************************
@@ -84,20 +91,6 @@ Function Definitions
 /*--------------------------------------------------------------------------------------------------------------------*/
 /*! @publicsection */                                                                                            
 /*--------------------------------------------------------------------------------------------------------------------*/
-
-/*!--------------------------------------------------------------------------------------------------------------------
-@fn 
-@brief Determines if a new message is available from the nRF Interface.
-
-
-Requires:
-- 
-
-Promises:
-- 
-
-*/
-/* end  */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -179,7 +172,7 @@ Promises:
 void TermTacToeWriteSquare(u8 u8Square_, bool bX_)
 {
   u8 au8CharToWrite[] = "O";
-  u8 au8CharColor[] = TERM_TEXT_RED;
+  u8 au8CharColor[]   = TERM_TEXT_RED;
   
   /* There are only ever 3 choices of column and row so we
   can save a little space */
@@ -188,7 +181,7 @@ void TermTacToeWriteSquare(u8 u8Square_, bool bX_)
   
   /* The column and index is calculated to choose from one of the three */
   u8 u8ColumnIndex = u8Square_ % 3;
-  u8 u8RowIndex = u8Square_ / 3;
+  u8 u8RowIndex    = u8Square_ / 3;
   
   u8 au8SetCursor[13] = "\033[r;cH";
   u8* pu8ParserSource;
@@ -263,7 +256,7 @@ void TermTacToeWriteUserMessage(UserMessageType eMessageNumber_)
 {
   /* CursorPos-Reset-Blue-Cursor-Reverse */
   DebugPrintf("\033[12;1H\033[0m\033[34m\033[7m");
-  if(eMessageNumber_ == TTT_LOCAL_MOVE)
+  if(eMessageNumber_ == TTT_HOME_MOVE)
   {
     DebugPrintf(TERM_BLINK);
   }
@@ -272,7 +265,7 @@ void TermTacToeWriteUserMessage(UserMessageType eMessageNumber_)
   DebugPrintf(TermTacToe_au8UserMessage[eMessageNumber_]);
   
   /* Add user prompt for move */  
-  if(eMessageNumber_ == TTT_LOCAL_MOVE)
+  if(eMessageNumber_ == TTT_HOME_MOVE)
   {
     /* CursorPos Reset TERM_BKG_BLK TERM_TEXT_WHT TERM_CUR_HIDE */
     DebugPrintf("\033[13;1H\033[0m\033[40m\033[37m\033[?25l");
@@ -306,7 +299,79 @@ void TermTacToeClearAvailableSpaces(void)
     TermTacToe_abAvailableSpaces[i] = TRUE;
   }
   
-} /* end TermTacToeWriteUserMessage() */
+} /* end TermTacToeClearAvailableSpaces() */
+
+
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void TermTacToeProcessMove(void)
+@brief Processes a GAME_MOVE message during game play.
+
+This should only be called from TermTacToeSM_AwayTurn or TermTacToeSM_HomeTurn
+
+Requires:
+- TermTacToe_bLocalIsEx correctly set
+- u8Position_ holds valid GAME_MOVE position
+- u8GameStatus_ holds a valid GAME_MOVE status
+
+Promises:
+- Game board is updated based on status
+- If game status is "playing" then SM is not updated; otherwise
+  SM next state set to GAME OVER
+
+*/
+void TermTacToeProcessMove(u8 u8Position_, u8 u8GameStatus_)
+{
+  /* Write the specified square with the correct symbol */
+  if(TermTacToe_bLocalIsEx)
+  {
+    TermTacToeWriteSquare(u8Position_, OH);
+  }
+  else
+  {
+    TermTacToeWriteSquare(u8Position_, EX);
+  }
+
+  /* Update board and next move depending on game state */
+  switch (u8GameStatus_)
+  {
+    case GAME_MOVE_DATA_STATUS_WINNER_HOME:
+    {
+      LedOff(YELLOW);
+      LedBlink(GREEN, LED_8HZ);
+      TermTacToeWriteUserMessage(TTT_WINNER);
+      
+      TermTacToe_pfStateMachine = TermTacToeSM_GameOver;
+      break;
+    }
+
+    case GAME_MOVE_DATA_STATUS_WINNER_AWAY:
+    {
+      LedOff(GREEN);
+      LedBlink(YELLOW, LED_8HZ);
+      TermTacToeWriteUserMessage(TTT_LOSER);
+      
+      TermTacToe_pfStateMachine = TermTacToeSM_GameOver;
+      break;
+    }
+
+    case GAME_MOVE_DATA_STATUS_DRAW:
+    {
+      LedBlink(YELLOW, LED_1HZ);
+      LedBlink(GREEN, LED_1HZ);
+      TermTacToeWriteUserMessage(TTT_DRAW);
+      
+      TermTacToe_pfStateMachine = TermTacToeSM_GameOver;
+      break;
+    }
+
+    default:
+    {
+      break;
+    }
+
+  } /* end switch */
+ 
+} /* end TermTacToeProcessMove() */
 
 
 /**********************************************************************************************************************
@@ -331,7 +396,9 @@ static void TermTacToeSM_Setup(void)
   TermTacToeClearAvailableSpaces();
   
   /* Advance to start state */
-  LedOn(GREEN);
+  LedOff(YELLOW);
+  LedOff(GREEN);
+  LedOn(ORANGE);
   TermTacToe_pfStateMachine = TermTacToeSM_Idle;
   
 } /* end TermTacToeSM_Setup() */
@@ -350,78 +417,255 @@ Orange LED on to indicate state.
 */
 static void TermTacToeSM_Idle(void)
 {
-  /* Look for key presses and read them to ensure the buffer does not overflow */
+  u8 u8CommandNumber;
+  u8 au8CommandString[];
+  
+  /* Look for key presses and read them to ensure the buffer does 
+  not overflow; ignore since input is not valid right now. */
   if(G_u8DebugScanfCharCount)
   {
     DebugScanf(TermTacToe_au8TerminalInputBuffer);
   }
   
   /* Wait for game message to indicate which player is starting */
-  if(nrfNewMessageCheck != NRF_CMD_EMPTY)
+  u8CommandNumber = nrfNewMessageCheck();
+  if(u8CommandNumber != NRF_CMD_EMPTY)
   {
-    /* The only valid message right now is a game start message */
+    /* Read the message */
+    nrfGetAppMessage(TermTacToe_au8AppMessage);
     
+    /* The only valid message right now is a game start message */
+    if(TermTacToe_au8AppMessage[ANTTT_COMMAND_OFFSET_ID] == ANTTT_APP_MSG_GAME_REQUEST)
+    {
+      if(TermTacToe_au8AppMessage[ANTTT_COMMAND_OFFSET_DATA0] = GAME_REQUEST_DATA_LOCAL_STARTS)
+      {
+        LedOn(GREEN);
+        TermTacToe_bLocalIsEx = TRUE;
+        TermTacToeWriteUserMessage(TTT_HOME_MOVE);
+        TermTacToe_pfStateMachine = TermTacToeSM_HomeTurn;
+      }
+      else if(TermTacToe_au8AppMessage[ANTTT_COMMAND_OFFSET_DATA0] = GAME_REQUEST_DATA_REMOTE_STARTS)
+      {
+        LedOn(YELLOW);
+        TermTacToe_bLocalIsEx = FALSE;
+        TermTacToeWriteUserMessage(TTT_AWAY_MOVE);
+        TermTacToe_pfStateMachine = TermTacToeSM_AwayTurn;
+      }
+      else
+      {
+        DebugPrintf("\n\rInvalid GAME_REQUEST data\n\r");
+      }
+      
+      /* For now assume a good GAME_REQUEST so initialize the move
+      information. */
+      LedOff(ORANGE);
+    }
+    else
+    {
+      DebugPrintf("\n\rUnexpected message received\n\r");
+    }
   }
-  
+
+#if 0  
   /* Character write test */
   if(WasButtonPressed(BUTTON0))
   {
     ButtonAcknowledge(BUTTON0);
     TermTacToeWriteSquare(0, EX);
-    TermTacToeWriteUserMessage(TTT_REMOTE_MOVE);
+    TermTacToeWriteUserMessage(TTT_AWAY_MOVE);
   }
   
   if(WasButtonPressed(BUTTON1))
   {
     ButtonAcknowledge(BUTTON1);
     TermTacToeWriteSquare(8, EX);
-    TermTacToeWriteUserMessage(TTT_REMOTE_MOVE);
+    TermTacToeWriteUserMessage(TTT_AWAY_MOVE);
   }
 
   if(WasButtonPressed(BUTTON2))
   {
     ButtonAcknowledge(BUTTON2);
     TermTacToeWriteSquare(0, OH);
-    TermTacToeWriteUserMessage(TTT_LOCAL_MOVE);
+    TermTacToeWriteUserMessage(TTT_HOME_MOVE);
   }
 
   if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
     TermTacToeWriteSquare(7, OH);
-    TermTacToeWriteUserMessage(TTT_LOCAL_MOVE);
+    TermTacToeWriteUserMessage(TTT_HOME_MOVE);
   }
+#endif
   
 } /* end TermTacToeSM_Idle() */
    
 
 /*!----------------------------------------------------------------------------------------------------------------------
-@fn static void TermTacToeSM_LocalTurn(void)          
+@fn static void TermTacToeSM_HomeTurn(void)          
 @brief Play a local turn.
 
 Scan keyboard input.  Allow only characters that are available to advance from this
 state.  Do not echo characters.
 
 Setup: 
-Yellow LED to indicate state.  
+GREEN LED to indicate state.  
 Terminal window should indicate "Your turn".
 */
-static void TermTacToeSM_LocalTurn(void)          
+static void TermTacToeSM_HomeTurn(void)          
 {
+  u8 u8InputChar;
   
-} /* end TermTacToeSM_LocalTurn() */
+  /* Look for terminal input */
+  if(G_u8DebugScanfCharCount == 1)
+  {
+    DebugScanf(u8InputChar);
+    
+    /* Range check '0' to '8' */
+    if( (u8InputChar >= '0') && (u8InputChar <= '8') )
+    {
+      /* Convert to binary and check if available space */
+      u8InputChar -= NUMBER_ASCII_TO_DEC;
+      if(TermTacToe_abAvailableSpaces[u8InputChar] == TRUE)
+      {
+        /* Valid move, so update message and send to 422 */
+        TermTacToe_au8SpiGameMove[GAME_MOVE_OFFSET_POSITION + NRF_OVERHEAD_BYTES] = u8InputChar;
+      }
+    }
+    
+    /* This application only knows if a square is available. */
+  }
+  
+  /* Move is good, so change states */
+        
+
+        
+  /* Process any messages that arrive - only RESET applies here */
+  u8CommandNumber = nrfNewMessageCheck();
+  if(u8CommandNumber != NRF_CMD_EMPTY)
+  {
+    /* Read the message */
+    nrfGetAppMessage(TermTacToe_au8AppMessage);
+    
+    if(TermTacToe_au8AppMessage[ANTTT_COMMAND_OFFSET_ID] == ANTTT_APP_MSG_RESET)
+    {
+      TermTacToe_pfStateMachine = TermTacToeSM_Setup;
+    }
+  }
+  
+} /* end TermTacToeSM_HomeTurn() */
+
+        
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_WaitHomeTurnResponse(void)          
+@brief Wait for the 422 game engine to return the GAME_MOVE message for 
+       the local move that was just made.
+*/
+static void TermTacToeSM_WaitHomeTurnResponse(void)
+{
+  /* Wait for message to indicate remote player has moved */
+  u8CommandNumber = nrfNewMessageCheck();
+  if(u8CommandNumber != NRF_CMD_EMPTY)
+  {
+    /* Read the message */
+    nrfGetAppMessage(TermTacToe_au8AppMessage);
+    
+    switch TermTacToe_au8AppMessage[ANTTT_COMMAND_OFFSET_ID]
+    {
+      case ANTTT_APP_MSG_RESET:
+      {
+        TermTacToe_pfStateMachine = TermTacToeSM_Setup;
+        break;
+      }
+      
+      case ANTTT_APP_MSG_GAME_MOVE:
+      {
+        TermTacToeProcessMove(TermTacToe_au8AppMessage[GAME_MOVE_OFFSET_POSITION],
+                              TermTacToe_au8AppMessage[GAME_MOVE_OFFSET_STATUS]);
+        
+        /* Adjust if game is still playing */
+        if(TermTacToe_au8AppMessage[GAME_MOVE_OFFSET_STATUS] == GAME_MOVE_DATA_STATUS_PLAYING)
+        {
+          LedOn(YELLOW);
+          LedOff(GREEN);
+          TermTacToeWriteUserMessage(TTT_AWAY_MOVE);
+          TermTacToe_pfStateMachine = TermTacToeSM_AwayTurn;
+        }
+                
+        break;
+      }
+            
+      default:
+      {
+        DebugPrintf("\n\rUnexpected message\n\r");
+        break;
+      }
+    } /* end switch */
+  }
+  
+} /* end TermTacToeSM_WaitHomeTurnResponse() */
+
+        
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn static void TermTacToeSM_AwayTurn(void)          
+@brief Wait for move or other command.
+
+Setup: YELLOW LED on to indicate state
+*/
+static void TermTacToeSM_AwayTurn(void)          
+{
+  /* Wait for message to indicate remote player has moved */
+  u8CommandNumber = nrfNewMessageCheck();
+  if(u8CommandNumber != NRF_CMD_EMPTY)
+  {
+    /* Read the message */
+    nrfGetAppMessage(TermTacToe_au8AppMessage);
+    
+    switch TermTacToe_au8AppMessage[ANTTT_COMMAND_OFFSET_ID]
+    {
+      case ANTTT_APP_MSG_RESET:
+      {
+        TermTacToe_pfStateMachine = TermTacToeSM_Setup;
+        break;
+      }
+      
+      case ANTTT_APP_MSG_GAME_MOVE:
+      {
+        TermTacToeProcessMove(TermTacToe_au8AppMessage[GAME_MOVE_OFFSET_POSITION],
+                              TermTacToe_au8AppMessage[GAME_MOVE_OFFSET_STATUS]);
+        
+        /* Adjust if game is still playing */
+        if(TermTacToe_au8AppMessage[GAME_MOVE_OFFSET_STATUS] == GAME_MOVE_DATA_STATUS_PLAYING)
+        {
+          LedOn(GREEN);
+          LedOff(YELLOW);
+          TermTacToeWriteUserMessage(TTT_HOME_MOVE);
+          TermTacToe_pfStateMachine = TermTacToeSM_HomeTurn;
+        }
+                
+        break;
+      }
+            
+      default:
+      {
+        DebugPrintf("\n\rUnexpected message\n\r");
+        break;
+      }
+    } /* end switch */
+  }
+  
+} /* end TermTacToeSM_AwayTurn() */
 
 
 /*!----------------------------------------------------------------------------------------------------------------------
-@fn static void TermTacToeSM_RemoteTurn(void)          
-@brief Wait for move or other command.
-
-Setup: GREEN LED on to indicate state
+@fn static void TermTacToeSM_GameOver(void)          
+@brief Wait state 
 */
-static void TermTacToeSM_LocalTurn(void)          
+static void TermTacToeSM_Error(void)          
 {
   
-} /* end TermTacToeSM_LocalTurn() */
+} /* end TermTacToeSM_Error() */
+
+
 
 /*!----------------------------------------------------------------------------------------------------------------------
 @fn static void TermTacToeSM_Error(void)          

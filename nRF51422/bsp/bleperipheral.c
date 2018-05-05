@@ -69,7 +69,8 @@ bool bleperipheralInitialize(void)
   bResult |= bleperipheral_advertising_start();
   
   return bResult;
-}
+  
+} /* end bleperipheralInitialize() */
 
 
 /*----------------------------------------------------------------------------------------------------------------------
@@ -126,7 +127,8 @@ bool bleperipheralEventHandler(ble_evt_t* p_ble_evt)
     }
 
     return (u32ErrorCode == NRF_SUCCESS);
-}
+    
+} /* end bleperipheralEventHandler() */
 
 
 /*----------------------------------------------------------------------------------------------------------------------
@@ -147,11 +149,12 @@ bool bleperipheralIsConnectedandEnabled(void)
 {
    // Check if connected and service enabled on BLE.
    return (m_conn_handle != BLE_CONN_HANDLE_INVALID);
-}
+   
+} /* end bleperipheralIsConnectedandEnabled() */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
-/* Private functions                                                                                                */
+/* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------------------------------------------------
@@ -188,7 +191,9 @@ static bool bleperipheral_gap_params_init(void)
     u32ErrorCode |= sd_ble_gap_ppcp_set(&gap_conn_params);
     
     return (u32ErrorCode == NRF_SUCCESS);
-}
+    
+} /* end bleperipheral_gap_params_init */
+
 
 /*----------------------------------------------------------------------------------------------------------------------
 Function: bleperipheral_advertising_init
@@ -238,7 +243,7 @@ static bool bleperipheral_advertising_init(void)
     
     return u32ErrorCode == NRF_SUCCESS;
     
-}
+} /* end bleperipheral_advertising_init() */
 
 
 /*----------------------------------------------------------------------------------------------------------------------
@@ -264,7 +269,7 @@ static bool bleperipheral_services_init(void)
   
   return true;
   
-}
+} /* end bleperipheral_services_init() */
 
 
 /*----------------------------------------------------------------------------------------------------------------------
@@ -286,7 +291,8 @@ static bool bleperipheral_advertising_start(void)
 
     u32ErrorCode = sd_ble_gap_adv_start(&m_adv_params);
     return (u32ErrorCode == NRF_SUCCESS);
-}
+    
+} /* end bleperipheral_advertising_start() */
 
 
 /*----------------------------------------------------------------------------------------------------------------------
@@ -310,7 +316,8 @@ static void bleperipheral_sec_params_init(void)
     m_sec_params.oob          = SEC_PARAM_OOB;
     m_sec_params.min_key_size = SEC_PARAM_MIN_KEY_SIZE;
     m_sec_params.max_key_size = SEC_PARAM_MAX_KEY_SIZE;
-}
+    
+} /* end bleperipheral_sec_params_init() */
 
 
 

@@ -66,7 +66,6 @@ Global variable definitions with scope across entire project.
 All Global variable names shall start with "G_<type>nrfInterface"
 ***********************************************************************************************************************/
 /* New variables */
-volatile u32 G_u32nrfInterfaceFlags;                      /*!< @brief Global state flags */
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -90,19 +89,19 @@ Variable names shall start with "nrfInterface_<type>" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type nrfInterface_pfStateMachine;               /*!< @brief The state machine function pointer */
 static u32 nrfInterface_u32Timeout;                           /*!< @brief Timeout counter used across states */
+
 static u32 nrfInterface_u32Flags;
-static u32 nrfInterface_u32MsgToken;
+//static u32 nrfInterface_u32MsgToken;
 
 static SspConfigurationType nrfInterface_sSspConfig;          /* Configuration information for SSP peripheral */
 static SspPeripheralType* nrfInterface_Ssp;                   /* Pointer to SSP peripheral object */
 
 static u8  nrfInterface_au8RxBuffer[U8_NRF_BUFFER_SIZE];      /* Space for verified received ANT messages */
 static u8* nrfInterface_pu8RxBufferNextChar;                  /* Pointer to next char to be written in the AntRxBuffer */
-
 static u8 nrfInterface_u8RxBytes;                             /* Bytes received in current transfer */
 static u8 nrfInterface_u8TxBytes;                             /* Bytes sent in current transfer */
 
-static u8 nrfInterface_au8Message[U8_NRF_BUFFER_SIZE];        /* Latest received message */
+static u8 nrfInterface_au8AppMessage[U8_NRF_BUFFER_SIZE];     /* Latest received application message */
 
 static u8 nrfInterface_au8TestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
 
@@ -128,7 +127,7 @@ Requires:
 - nrfInterface_u32Flags _NEW_APP_MESSAGE is set it a new message is available
 
 Promises:
-- Returns the command number of the message
+- Returns the command number of the message in nrfInterface_au8AppMessage
 
 */
 u8 nrfNewMessageCheck(void)
@@ -136,7 +135,7 @@ u8 nrfNewMessageCheck(void)
   /* Return the command number if the new message flag is set */
   if(nrfInterface_u32Flags & _NEW_APP_MESSAGE)
   {
-    return nrfInterface_au8Message[NRF_COMMAND_INDEX];
+    return nrfInterface_au8AppMessage[NRF_COMMAND_INDEX];
   }
   
   /* Otherwise return no command */
@@ -162,8 +161,14 @@ Promises:
 */
 void nrfGetAppMessage(u8* pu8AppBuffer_)
 {
-  memcpy(pu8AppBuffer_, (const u8*)nrfInterface_au8Message, 
-         (nrfInterface_au8Message[NRF_LENGTH_INDEX] + NRF_OVERHEAD_BYTES) );
+  u8 u8Length;
+
+  /* An application does not need the sync byte or length byte since 
+  the application number and associated payload is known by the application */ 
+  u8Length = nrfInterface_au8RxBuffer[NRF_LENGTH_INDEX];
+  memcpy( pu8AppBuffer_, 
+         (const u8*)&nrfInterface_au8AppMessage[NRF_COMMAND_INDEX], 
+          u8Length);
   
   nrfInterface_u32Flags &= ~_NEW_APP_MESSAGE;
   
@@ -419,17 +424,20 @@ static void nrfInterfaceSM_Rx(void)
   /* Watch for CS to deassert */
   if( !IS_CS_ASSERTED() )
   {
-    /* The message is complete.  Parse it out to determine what happens. */
+    /* The message is complete.  Parse it out to determine what happens next. */
     if(nrfInterface_au8RxBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE)
     {
       /* SYNC is verified, so check if this is a board command or 
       application message */
       if(nrfInterface_au8RxBuffer[NRF_COMMAND_INDEX] >= NRF_APP_MESSAGE_START)
       {
-        /* An application message is posted to G_au8nrfInterfaceMessage */ 
+        /* An application message is posted to nrfInterface_au8AppMessage */ 
         u8Length = nrfInterface_au8RxBuffer[NRF_LENGTH_INDEX];
         u8Length += NRF_OVERHEAD_BYTES;
-        memcpy(nrfInterface_au8Message, (const u8*)nrfInterface_au8RxBuffer, u8Length);
+        memcpy( nrfInterface_au8AppMessage, 
+               (const u8*)nrfInterface_au8RxBuffer, 
+                u8Length);
+        
         nrfInterface_u32Flags |= _NEW_APP_MESSAGE;
       } /* end APP message */
       else

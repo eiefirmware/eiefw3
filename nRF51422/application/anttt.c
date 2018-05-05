@@ -26,8 +26,8 @@ Global variable definitions with scope limited to this local application.
 Variable names shall start with "Anttt_<type>" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type Anttt_pfnStateMachine;              /*!< @brief The application state machine function pointer */
-static fnCode_type Anttt_pfnNextState;                 /*!< @brief Pointer loaded when a command is ACKED */
-static fnCode_type Anttt_pfnPrevState;                 /*!< @brief Pointer loaded when a command is NACKED */
+static fnCode_type Anttt_pfnNextState;                 /*!< @brief fPointer loaded when a command is ACKED */
+static fnCode_type Anttt_pfnPrevState;                 /*!< @brief fPointer loaded when a command is NACKED */
 
 static u32 Anttt_u32Timeout;                           /*!< @brief Timeout counter used across states */
 
@@ -40,15 +40,33 @@ static bool Anttt_bAntBlinkOn;
 static u8 Anttt_au8SpiReceiveBuffer[U8_SPI0_BUFFER_SIZE];
 static u32 Anttt_u32MessageNumber;
 
-static u8 Anttt_au8Message[ANTTT_COMMAND_SIZE];
+static u8 Anttt_au8AppMessage[ANTTT_COMMAND_SIZE];     /*!< Application */
 
 /* nRF Interface Messages */
-static u8 Anttt_au8TestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
-static u8 Anttt_au8AckMessage[]   = {NRF_SYNC_BYTE, ANTTT_APP_MSG_ACK_LENGTH, ANTTT_APP_MSG_ACK};
-static u8 Anttt_au8NackMessage[]  = {NRF_SYNC_BYTE, ANTTT_APP_MSG_NACK_LENGTH, ANTTT_APP_MSG_NACK};
+static u8 Anttt_au8SpiTestMessage[]  = {NRF_SYNC_BYTE, NRF_CMD_TEST_LENGTH, NRF_CMD_TEST};
+static u8 Anttt_au8SpiTestResponse[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_RESPONSE_LENGTH, NRF_CMD_TEST_RESPONSE};
 
-static u8 Anttt_au8BoardReset[]   = {NRF_SYNC_BYTE, ANTTT_APP_MSG_RESET_LENGTH, ANTTT_APP_MSG_RESET};
-static u8 Anttt_au8GameMove[]     = {NRF_SYNC_BYTE, ANTTT_APP_MSG_MOVE_LENGTH, ANTTT_APP_MSG_MOVE, 0};
+//static u8 Anttt_au8SpiAckMessage[]   = {NRF_SYNC_BYTE, ANTTT_APP_MSG_ACK_LENGTH, ANTTT_APP_MSG_ACK};
+//static u8 Anttt_au8SpiNackMessage[]  = {NRF_SYNC_BYTE, ANTTT_APP_MSG_NACK_LENGTH, ANTTT_APP_MSG_NACK};
+
+static u8 Anttt_au8SpiBoardReset[]   = {NRF_SYNC_BYTE, ANTTT_APP_MSG_RESET_LENGTH, ANTTT_APP_MSG_RESET};
+static u8 Anttt_au8SpiGameMove[]     = {NRF_SYNC_BYTE, ANTTT_APP_MSG_MOVE_LENGTH, ANTTT_APP_MSG_MOVE, 0};
+
+
+static u16 Anttt_u16HomeState;       /*<! @brief binary game data for the "home" team */
+static u16 Anttt_u16AwayState;       /*<! @brief binary game data for the "away" team */
+
+static u16 Anttt_au16WinningCombos[] = 
+{
+  0x0007,        // 0b000000111
+  0x0038,        // 0b000111000
+  0x01C0,        // 0b111000000
+  0x0049,        // 0b001001001
+  0x0092,        // 0b010010010
+  0x0124,        // 0b100100100
+  0x0111,        // 0b100010001
+  0x0054         // 0b001010100
+};
 
 
 /**********************************************************************************************************************
@@ -77,7 +95,6 @@ Promises:
 */
 void AntttInitialize(void)
 {
-  u8 au8SpiTestMessage[] = {NRF_SYNC_BYTE, NRF_CMD_TEST_LENGTH, NRF_CMD_TEST};
   u8 u8ReceivedBytes;
   u32 u32Result = 0;
 
@@ -85,11 +102,11 @@ void AntttInitialize(void)
   Anttt_eConnection = ANTTT_CONN_NONE;
   Anttt_bBleBlinkOn = true;
   Anttt_bAntBlinkOn = true;
-  AntttResetCommandMessage();
+  AntttResetAppMessage();
   
   /* Send a test message via SPI to check connection to SAM3U2 */
   LedOn(RED);
-  u32Result = SpiMasterSend(au8SpiTestMessage, sizeof(au8SpiTestMessage) );
+  u32Result = SpiMasterSend(Anttt_au8SpiTestMessage, sizeof(Anttt_au8SpiTestMessage) );
   
   if(u32Result == NRF_SUCCESS)
   {
@@ -118,7 +135,7 @@ void AntttInitialize(void)
   }
 
   /* Make sure the game board is reset */
-  u32Result = SpiMasterSend(au8SpiTestMessage, sizeof(au8SpiTestMessage) );
+  u32Result = SpiMasterSend(Anttt_au8SpiTestMessage, sizeof(Anttt_au8SpiTestMessage) );
   
   if(u32Result != NRF_SUCCESS)
   {
@@ -157,24 +174,24 @@ void AntttRunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 /*!----------------------------------------------------------------------------------------------------------------------
-@fn void AntttResetCommandMessage(void)
-@brief Sets all bytes in Anttt_au8Message to 0.
+@fn void AntttResetAppMessage(void)
+@brief Sets all bytes in Anttt_au8AppMessage to 0.
 
 Requires:
 - NONE
 
 Promises:
-- Anttt_au8Message[--] = 0;
+- Anttt_au8AppMessage[x] = 0;
 
 */
-void AntttResetCommandMessage(void)
+void AntttResetAppMessage(void)
 {
   for(u8 i = 0; i < ANTTT_COMMAND_SIZE; i++)
   {
-    Anttt_au8Message[i] = 0;
+    Anttt_au8AppMessage[i] = 0;
   }
   
-} /* end AntttResetCommandMessage() */
+} /* end AntttResetAppMessage() */
 
 
 /*!----------------------------------------------------------------------------------------------------------------------
@@ -183,7 +200,7 @@ void AntttResetCommandMessage(void)
 
 Requires:
 @PARAM pu8Message_ points to a stanard 8-byte OTA message where the current Anttt_u32MessageNumber
-is to be added
+is to be added.
 
 Promises:
 - The lower 2 bytes of Anttt_u32MessageNumber are placed 
@@ -209,13 +226,16 @@ Requires:
 
 Promises:
 - An incoming SPI message is read and processed
-- Anttt_au8SpiReceiveBuffer will hold the latest message data
-
+- If the message is valid:
+  > Anttt_au8AppMessage will hold an ANTTT formatted message
+  > Returns the received message command number 
+- Else returns 0 and Anttt_au8AppMessage is undefined
 */
-void AntttCheckSpiMessages(void)
+u8 AntttCheckSpiMessages(void)
 {
   u8 u8ReceivedBytes;
   u8 u8SpiMsgLength;
+  u8 u8Return = 0;
 
   /* Read any SPI messages */
   if(NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED])
@@ -224,28 +244,47 @@ void AntttCheckSpiMessages(void)
     NRF_GPIOTE->EVENTS_IN[EVENT_MRDY_ASSERTED] = 0;
     u8ReceivedBytes = SpiMasterReceive(Anttt_au8SpiReceiveBuffer);
 
-    /* Verify sync byte */
-    if( Anttt_au8SpiReceiveBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE)
+    /* The message is complete.  Parse it out to determine what happens next. */
+    if(Anttt_au8SpiReceiveBuffer[NRF_SYNC_INDEX] == NRF_SYNC_BYTE)
     {
-      u8SpiMsgLength = Anttt_au8SpiReceiveBuffer[NRF_LENGTH_INDEX];
-      
-      /* Process the message */
-      switch(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX])
+      /* SYNC is verified, so check if this is a board command or 
+      an ANT application message */
+      if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] >= ANTTT_STARTING_MESSAGE_NUMBER)
       {
-        case NRF_CMD_TEST:
-        {
-          Anttt_u32Result = SpiMasterSend(Anttt_au8TestResponse, 
-                                         (NRF_CMD_TEST_RESPONSE_LENGTH + NRF_OVERHEAD_BYTES) );
-          break;
-        }
-
-        default:
-        {
-          break;
-        }
+        /* An application message is posted to Anttt_au8AppMessage */ 
+        u8Return = Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX];
+        u8SpiMsgLength = Anttt_au8SpiReceiveBuffer[NRF_LENGTH_INDEX];
+        memcpy( Anttt_au8AppMessage, 
+               (const u8*)&Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX], 
+                u8SpiMsgLength
+               );
         
-      }
+      } /* end APP message */
+      else
+      {
+        /* A board command is received */
+        switch(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX])
+        {
+          case NRF_CMD_TEST:
+          {
+            Anttt_u32Result = SpiMasterSend(Anttt_au8SpiTestResponse, 
+                                           (NRF_CMD_TEST_RESPONSE_LENGTH + NRF_OVERHEAD_BYTES) );
+            break;
+          }
+
+          default:
+          {
+            break;
+          }
+          
+        } /* end switch */
+      } /* end else (not an APP message) */
+    } /* end SYNC byte found */
+    else
+    {
+      /* For now, just ignore messages that are not in the correct format */
     }
+    
   } /* end SPI message processing */
 
 } /* end AntttCheckSpiMessages */
@@ -274,23 +313,23 @@ static void AntttSM_Idle(void)
   {
     /* Prepare and queue the game request message including a randomized starter */
     Anttt_u32MessageNumber = 1;
-    AntttResetCommandMessage();
+    AntttResetAppMessage();
     
-    Anttt_au8Message[ANTTT_COMMAND_OFFSET_ID] = ANTTT_APP_MSG_GAME_REQUEST;
+    Anttt_au8AppMessage[ANTTT_COMMAND_OFFSET_ID] = ANTTT_APP_MSG_GAME_REQUEST;
     
     /* Random start based on system tick LSB */
     if(G_u32SystemTime1ms & 0x00000001)
     {
-      Anttt_au8Message[GAME_REQUEST_OFFSET_STARTER] = GAME_REQUEST_DATA_LOCAL_STARTS;
+      Anttt_au8AppMessage[GAME_REQUEST_OFFSET_STARTER] = GAME_REQUEST_DATA_LOCAL_STARTS;
     }
     else
     {
-      Anttt_au8Message[GAME_REQUEST_OFFSET_STARTER] = GAME_REQUEST_DATA_REMOTE_STARTS;
+      Anttt_au8AppMessage[GAME_REQUEST_OFFSET_STARTER] = GAME_REQUEST_DATA_REMOTE_STARTS;
     }
     
     /* Add and increment the current message counter then pass to BLE send */
-    AntttAddCurrentMessageCounter(Anttt_au8Message);
-    BPEngenuicsSendData(Anttt_au8Message, ANTTT_COMMAND_SIZE);
+    AntttAddCurrentMessageCounter(Anttt_au8AppMessage);
+    BPEngenuicsSendData(Anttt_au8AppMessage, ANTTT_COMMAND_SIZE);
     
     /* Set LEDs and proceed to wait state */
     LedOff(GREEN);

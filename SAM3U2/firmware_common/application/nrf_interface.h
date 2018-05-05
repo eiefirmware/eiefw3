@@ -85,6 +85,7 @@ Constants / Definitions
 /* NRF Interface Protocol */
 #define NRF_SYNC_BYTE           (u8)0x5A
 #define NRF_OVERHEAD_BYTES      (u8)2
+#define NRF_OVERHEAD_BYTES      (u8)2
 
 #define NRF_SYNC_INDEX          (u8)0
 #define NRF_LENGTH_INDEX        (u8)1

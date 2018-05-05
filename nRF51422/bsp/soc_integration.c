@@ -93,7 +93,8 @@ void SocIntegrationHandler(void)
     ANTIntegrationHandler();
     BLEIntegrationHandler();
   }
-}
+  
+} /* end SocIntegrationHandler() */
 
 
 /*!----------------------------------------------------------------------------------------------------------------------
