@@ -249,7 +249,7 @@ u8 AntttCheckSpiMessages(void)
     {
       /* SYNC is verified, so check if this is a board command or 
       an ANT application message */
-      if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] >= ANTTT_STARTING_MESSAGE_NUMBER)
+      if(Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX] >= U8_ANTTT_STARTING_MESSAGE_NUMBER)
       {
         /* An application message is posted to Anttt_au8AppMessage */ 
         u8Return = Anttt_au8SpiReceiveBuffer[NRF_COMMAND_INDEX];
@@ -327,7 +327,7 @@ static void AntttSM_Idle(void)
       Anttt_au8AppMessage[GAME_REQUEST_OFFSET_STARTER] = GAME_REQUEST_DATA_REMOTE_STARTS;
     }
     
-    /* Add and increment the current message counter then pass to BLE send */
+    /* Add in and increment the current message counter then pass to BLE send */
     AntttAddCurrentMessageCounter(Anttt_au8AppMessage);
     BPEngenuicsSendData(Anttt_au8AppMessage, ANTTT_COMMAND_SIZE);
     
@@ -338,8 +338,8 @@ static void AntttSM_Idle(void)
     Anttt_bBleBlinkOn = false;
     Anttt_u32MessageNumber = 0;
     Anttt_pfnNextState = AntttSM_BleGameRequest;
-    Anttt_pfnPrevState = Anttt_pfnPrevState;
-    Anttt_pfnStateMachine = AntttSM_BleGameRequest;
+    Anttt_pfnPrevState = AntttSM_Idle;
+    Anttt_pfnStateMachine = AntttSM_WaitResponse;
   }
   else
   {
@@ -410,6 +410,33 @@ static void AntttSM_BleGameRequest(void)
 State: AntttSM_Game
 Plays a complete game of Tic-Tac-Toe.  
 */
+
+
+/*--------------------------------------------------------------------------------------------------------------------
+State: AntttSM_WaitResponse
+Waits a standard amount of time for an expected message to arrive.
+If the message arrives, the state machine advances.
+If the message does not arrive, the state machine reverts to the previous state.
+*/
+static void AntttSM_WaitResponse(void)
+{
+  /* Process a message if it arrives */
+  if()
+  {
+    Anttt_pfnStateMachine = Anttt_pfnNextState;
+  }
+  
+  /* Watch for timeout */
+  if( IsTimeUp(Anttt_u32Timeout, U32_WAIT_MESSAGE_TIMEOUT_MS)
+  {
+    Anttt_pfnStateMachine = Anttt_pfnPrevState;
+  }
+  
+  
+} /* end AntttSM_WaitResponse() */
+
+
+
 
 
 

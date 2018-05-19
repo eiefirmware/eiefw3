@@ -106,7 +106,7 @@
         <expressions>
           
           
-        <item>G_u32SystemTime1ms</item><item>nrfInterface_au8RxBuffer</item><item>nrfInterface_au8Message</item><item>TermTacToe_au8UserMessage</item><item></item></expressions>
+        <item>G_u32SystemTime1ms</item><item>nrfInterface_au8RxBuffer</item><item>nrfInterface_au8Message</item><item>TermTacToe_au8UserMessage</item><item/></expressions>
         <col-names>
           
           

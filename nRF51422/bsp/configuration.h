@@ -74,6 +74,7 @@ Includes
 #include "spi_master_eie.h"
 
 /* Application header files */
+#include "anttt_protocol.h"
 #include "anttt.h"
 
 

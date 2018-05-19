@@ -82,7 +82,12 @@ Constants / Definitions
 
 #define U32_TRX_TIMEOUT_MS      (u32)1000
 
-/* NRF Interface Protocol */
+/* 
+NRF Interface Protocol 
+This message protocol defines communication between the SAM3U2 and the nRF51422 processors
+on the EiE development board.  This protocol frames data or other message protocols used
+between the two systems.  
+*/
 #define NRF_SYNC_BYTE           (u8)0x5A
 #define NRF_OVERHEAD_BYTES      (u8)2
 #define NRF_OVERHEAD_BYTES      (u8)2
@@ -125,10 +130,15 @@ Constants / Definitions
 #define NRF_CMD_TEST_LENGTH              (u8)1
 #define NRF_CMD_TEST_RESPONSE_LENGTH     (u8)1
 
-/* end */
+/* end NRF Interface Protocol */
 
 
 #endif /* __NRF_INTERFACE_H */
+
+
+
+
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* End of File                                                                                                        */
 /*--------------------------------------------------------------------------------------------------------------------*/

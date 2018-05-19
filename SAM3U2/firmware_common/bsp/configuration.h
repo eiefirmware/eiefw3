@@ -88,6 +88,7 @@ Includes
 /* Common application header files */
 #include "debug.h"
 #include "music.h"
+#include "anttt_protocol.h"
 #include "nrf_interface.h"
 #include "term_tac_toe.h"
 #include "user_app1.h"

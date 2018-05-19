@@ -91,7 +91,7 @@ static fnCode_type nrfInterface_pfStateMachine;               /*!< @brief The st
 static u32 nrfInterface_u32Timeout;                           /*!< @brief Timeout counter used across states */
 
 static u32 nrfInterface_u32Flags;
-//static u32 nrfInterface_u32MsgToken;
+static u32 nrfInterface_u32MsgToken;
 
 static SspConfigurationType nrfInterface_sSspConfig;          /* Configuration information for SSP peripheral */
 static SspPeripheralType* nrfInterface_Ssp;                   /* Pointer to SSP peripheral object */

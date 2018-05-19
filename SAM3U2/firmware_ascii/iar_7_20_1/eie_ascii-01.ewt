@@ -298,6 +298,9 @@
     <group>
       <name>Include</name>
       <file>
+        <name>$PROJ_DIR$\..\..\..\common\anttt_protocol.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\application\debug.h</name>
       </file>
       <file>

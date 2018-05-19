@@ -310,6 +310,7 @@
           <state>$PROJ_DIR$\..\..\firmware_common\bsp</state>
           <state>$PROJ_DIR$\..\..\firmware_common\cmsis</state>
           <state>$PROJ_DIR$\..\..\firmware_common\drivers</state>
+          <state>$PROJ_DIR$\..\..\..\common</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2026,6 +2027,9 @@
     <name>Application</name>
     <group>
       <name>Include</name>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\common\anttt_protocol.h</name>
+      </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\application\debug.h</name>
       </file>

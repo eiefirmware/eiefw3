@@ -362,6 +362,48 @@ void DebugClearPassthrough(void)
 
 
 /*!----------------------------------------------------------------------------------------------------------------------
+@fn void DebugEchoOff(void)
+
+@brief Turns off echoing input characters back to terminal.
+
+Requires:
+  - NONE
+
+Promises:
+@param G_u32DebugFlags _DEBUG_PASSTHROUGH is set
+
+*/
+void DebugEchoOff(void)
+{
+  G_u32DebugFlags |= _DEBUG_ECHO_OFF;
+  
+  DebugPrintf("\n\n\r***Debug ECHO OFF***\n\n\r");
+
+} /* end DebugEchoOff */
+
+
+/*!----------------------------------------------------------------------------------------------------------------------
+@fn void DebugEchoOn(void)
+
+@brief Turns on echoing input characters back to terminal.
+
+Requires:
+  - NONE
+
+Promises:
+@param G_u32DebugFlags _DEBUG_PASSTHROUGH is cleared
+
+*/
+void DebugEchoOn(void)
+{
+  G_u32DebugFlags &= ~_DEBUG_ECHO_OFF;
+  
+  DebugPrintf("\n\n\r***Debug ECHO ON***\n\n\r");
+
+} /* end DebugEchoOn */
+
+
+/*!----------------------------------------------------------------------------------------------------------------------
 @fn void SystemStatusReport(void)
 
 @brief Reports system-level messages from the Debug task.
@@ -1119,7 +1161,11 @@ void DebugSM_Idle(void)
         }
                 
         /* Send the Backspace sequence to clear the character on the terminal */
-        DebugPrintf(au8BackspaceSequence);
+        if( !(G_u32DebugFlags & _DEBUG_ECHO_OFF) )
+        {
+          DebugPrintf(au8BackspaceSequence);
+        }
+        
         break;
       }
 
@@ -1146,7 +1192,10 @@ void DebugSM_Idle(void)
         }
         
         /* Echo the character back to the terminal */
-        UartWriteByte(Debug_Uart, u8CurrentByte);
+        if( !(G_u32DebugFlags & _DEBUG_ECHO_OFF) )
+        {
+          UartWriteByte(Debug_Uart, u8CurrentByte);
+        }
         
         /* As long as Passthrough mode is not active, then update the command buffer */
         if( !( G_u32DebugFlags & _DEBUG_PASSTHROUGH) )

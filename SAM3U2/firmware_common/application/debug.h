@@ -36,6 +36,8 @@ u8 DebugScanf(u8* au8Buffer_);
 
 void DebugSetPassthrough(void);
 void DebugClearPassthrough(void);
+void DebugEchoOff(void);
+void DebugEchoOn(void);
 
 void SystemStatusReport(void);
 
@@ -86,6 +88,7 @@ static void DebugSM_Error(void);
 #define _DEBUG_LED_TEST_ENABLE         (u32)0x00000001      /*!< @brief G_u32DebugFlags set if LED test is enabled */
 #define _DEBUG_TIME_WARNING_ENABLE     (u32)0x00000002      /*!< @brief G_u32DebugFlags set if system time check is enabled */
 #define _DEBUG_PASSTHROUGH             (u32)0x00000004      /*!< @brief G_u32DebugFlags set if Passthrough mode is enabled */
+#define _DEBUG_ECHO_OFF                (u32)0x00000008      /*!< @brief G_u32DebugFlags set if character echo disabled */
 
 #ifdef EIE1 /* EIE1-specific G_u32DebugFlags flags */
 #endif /* EIE1 */

@@ -193,7 +193,7 @@
         <name>$PROJ_DIR$\..\bsp\interrupts.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\leds_eief1_nrf51.h</name>
+        <name>$PROJ_DIR$\..\bsp\leds_eieF1_nRF51.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\soc_integration.h</name>
@@ -223,7 +223,7 @@
         <name>$PROJ_DIR$\..\bsp\interrupts.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\bsp\leds_eief1_nrf51.c</name>
+        <name>$PROJ_DIR$\..\bsp\leds_eief1_nRF51.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\bsp\soc_integration.c</name>
@@ -325,9 +325,6 @@
         <name>$PROJ_DIR$\..\nordic_sdk6_1_0\system_nrf51422.c</name>
       </file>
     </group>
-    <file>
-      <name>$PROJ_DIR$\..\nordic_sdk6_1_0\spi_master.c</name>
-    </file>
   </group>
   <group>
     <name>Application</name>
@@ -335,6 +332,9 @@
       <name>Include</name>
       <file>
         <name>$PROJ_DIR$\..\application\anttt.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\common\anttt_protocol.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\application\bleperipheral_engenuics.h</name>
