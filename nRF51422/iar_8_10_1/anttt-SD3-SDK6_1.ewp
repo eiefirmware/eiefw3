@@ -332,6 +332,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
+                    <state>$PROJ_DIR$\..\..\common</state>
                     <state>$PROJ_DIR$\..\bsp</state>
                     <state>$PROJ_DIR$\..\application</state>
                     <state>$PROJ_DIR$\..\nordic_sdk6_1_0</state>
@@ -2060,7 +2061,7 @@
                 <name>$PROJ_DIR$\..\bsp\interrupts.h</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\leds_eief1_nrf51.h</name>
+                <name>$PROJ_DIR$\..\bsp\leds_eieF1_nRF51.h</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\soc_integration.h</name>
@@ -2087,7 +2088,7 @@
                 <name>$PROJ_DIR$\..\bsp\interrupts.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\bsp\leds_eief1_nrf51.c</name>
+                <name>$PROJ_DIR$\..\bsp\leds_eief1_nRF51.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\bsp\soc_integration.c</name>

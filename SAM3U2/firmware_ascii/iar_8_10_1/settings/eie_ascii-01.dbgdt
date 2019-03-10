@@ -128,7 +128,7 @@
             <IarPane-34096>
                 <expressions>
                     <item>G_u32SystemTime1ms</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

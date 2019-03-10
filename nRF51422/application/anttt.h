@@ -24,7 +24,7 @@ Constants / Definitions
 Type Definitions
 **********************************************************************************************************************/
 
-typedef enum {ANTTT_CONN_ANT, ANTTT_CONN_BLE, ANTTT_CONN_NONE} AntttConnectionType;
+//typedef enum {ANTTT_CONN_ANT, ANTTT_CONN_BLE, ANTTT_CONN_NONE} AntttConnectionType;
 
 
 /**********************************************************************************************************************
